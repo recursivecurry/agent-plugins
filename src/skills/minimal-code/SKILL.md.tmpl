@@ -126,7 +126,7 @@ For bug fixes:
 
 Before changing code or tests in response to a failed check:
 
-- Read the full relevant failure log and identify the first failing command and execution stage. The last error shown may obscure the initial failure.
+- Read the full relevant failure log, locate the failing command and execution stage, and trace the failure back to its root cause. The first or last error shown may be a symptom rather than the cause.
 - For local/CI differences, compare relevant runtime versions and configuration scopes, and reproduce or isolate the differing condition. Check whether test fixtures depend on settings inherited from the surrounding environment.
 - Support the root-cause hypothesis with a reproduction or execution trace before fixing it. If a fix fails, revisit the hypothesis before another speculative edit or push.
 - Change a test expectation only when the required behavior shows it is wrong. An error message alone is not evidence that an assertion should be weakened.
