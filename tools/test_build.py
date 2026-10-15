@@ -2,6 +2,7 @@ import contextlib
 import io
 import os
 import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -82,6 +83,43 @@ class SourceTreeCase(unittest.TestCase):
 
 
 class StageTest(SourceTreeCase):
+    def test_eval_stages_from_root_tools_and_external_directories(self) -> None:
+        tools = Path(__file__).resolve().parent
+        for name in ("build.py", "staging.sh", "eval.sh"):
+            write(self.root, f"tools/{name}", (tools / name).read_bytes())
+        write(self.root, "evals/demo/prompt.md", "Offline fixture\n")
+        write(
+            self.root,
+            "bin/claude",
+            "#!/bin/bash\nset -euo pipefail\n"
+            '[[ "$1" == plugin && "$2" == eval ]]\n'
+            '[[ -f "$3/skills/demo/SKILL.md" ]]\n'
+            '[[ -f "$3/evals/demo/prompt.md" ]]\n'
+            'printf "%s\\n" "$3"\n',
+            executable=True,
+        )
+        environment = dict(
+            os.environ,
+            PATH=os.pathsep.join(
+                (
+                    str(self.root / "bin"),
+                    str(Path(sys.executable).parent),
+                    os.environ["PATH"],
+                )
+            ),
+        )
+        for directory in (self.root, self.root / "tools", self.root.parent):
+            with self.subTest(directory=directory):
+                result = subprocess.run(
+                    ["bash", os.path.relpath(self.root / "tools/eval.sh", directory)],
+                    cwd=directory,
+                    env=environment,
+                    capture_output=True,
+                    text=True,
+                )
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertFalse(Path(result.stdout.strip()).parents[2].exists())
+
     def test_builds_a_source_copy_without_touching_existing_outputs(self) -> None:
         write(self.root, "skills/old/SKILL.md", "user edits\n")
         write(self.root, "plugins/old/private.txt", "keep\n")

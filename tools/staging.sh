@@ -10,8 +10,7 @@ remove_stage_dir() {
 }
 
 stage_distribution() {
-  local repo_root
-  repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+  local repo_root="$1"
   stage_dir="$(mktemp -d)"
   trap remove_stage_dir EXIT
   python3 "$repo_root/tools/build.py" stage "$stage_dir" >/dev/null

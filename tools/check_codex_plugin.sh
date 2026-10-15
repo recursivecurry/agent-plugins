@@ -22,7 +22,7 @@ main() {
     exit 1
   fi
 
-  stage_distribution
+  stage_distribution "$PWD"
   codex_home="$stage_dir/codex-home"
   mkdir "$codex_home"
   export CODEX_HOME="$codex_home"

@@ -17,7 +17,7 @@ main() {
   cd "$(dirname "${BASH_SOURCE[0]}")/.."
 
   expected="$(find "$SKILLS_SRC" -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | sort)"
-  stage_distribution
+  stage_distribution "$PWD"
   cd "$stage_dir"
   # `--list` has no JSON output, so read the skill names from the text listing.
   listed="$(npx --yes skills add . --list </dev/null | strip_ansi | sed -n 's/^│    \([a-z0-9-]*\)$/\1/p' | sort)"

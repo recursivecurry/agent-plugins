@@ -25,7 +25,7 @@ main() {
     exit 1
   fi
 
-  stage_distribution
+  stage_distribution "$repo_root"
   cp -R "$EVALS_DIR" "${stage_dir}/${PLUGIN_DIR}/${EVALS_DIR}"
   rm -rf "${stage_dir:?}/${PLUGIN_DIR}/${RESULTS_DIR}"
 
