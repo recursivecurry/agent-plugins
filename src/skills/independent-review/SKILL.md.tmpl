@@ -102,6 +102,8 @@ pushes nor launches a model. Add remote/ref
 identity and baseline provenance to the task message; its output alone is not
 proof of a successful push. Missing commits or setup failure mean `incomplete`.
 All reachable Git objects for the pinned commits must already exist locally.
+Shallow repositories fail before snapshot creation; obtain complete history
+separately before retrying. The helper does not fetch missing history.
 Partial clones with missing objects fail before creating a snapshot; the helper
 does not hydrate them from a remote. Materializing objects is separate authorized
 work, not an automatic review fallback.

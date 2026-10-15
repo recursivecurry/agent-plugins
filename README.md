@@ -145,6 +145,8 @@ cleanup fails, the error includes the remaining temporary directory's path.
 Dependencies, submodule contents, and LFS objects are not installed or fetched
 for the reviewer. All reachable Git objects must already be local; partial clones
 with missing objects report `incomplete` without fetching or creating a snapshot.
+Shallow repositories also report `incomplete` before snapshot creation; obtain
+complete history separately before retrying. The helper does not fetch missing history.
 Use `--snapshot-parent <directory>` to choose an existing permitted directory
 outside the author's working tree. For a new branch, pin its unique merge-base
 with the intended target branch, so independently added target changes do not

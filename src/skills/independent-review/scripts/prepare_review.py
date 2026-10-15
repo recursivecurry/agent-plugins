@@ -116,6 +116,14 @@ def prepare_review(
         )
     )
     trusted = (str(repo),)
+    if (
+        git(repo, "rev-parse", "--is-shallow-repository", safe_directories=trusted)
+        == "true"
+    ):
+        raise ValueError(
+            "source repository is shallow; obtain complete history separately "
+            "before review (no remote objects were fetched)"
+        )
     for sha in commits:
         if git(repo, "cat-file", "-t", sha, safe_directories=trusted) != "commit":
             raise ValueError(f"{sha} is not a commit")

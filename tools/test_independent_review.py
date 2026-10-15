@@ -177,6 +177,38 @@ class PrepareReviewTest(unittest.TestCase):
         self.assertEqual(snapshot.parent, parent.resolve())
         self.assertEqual((snapshot / "code.txt").read_text(), "pushed\n")
 
+    def test_rejects_shallow_history_before_creating_a_snapshot(self) -> None:
+        shallow = Path(self.temporary.name) / "shallow"
+        git(
+            self.repo,
+            "clone",
+            "--quiet",
+            "--depth=2",
+            self.repo.as_uri(),
+            str(shallow),
+        )
+        before = {
+            path.relative_to(shallow): path.read_bytes()
+            for path in shallow.rglob("*")
+            if path.is_file()
+        }
+        for base in (self.middle, None):
+            with (
+                self.subTest(base=base),
+                patch.object(prepare_review.tempfile, "mkdtemp") as make_snapshot,
+                self.assertRaisesRegex(ValueError, "shallow.*complete history"),
+            ):
+                prepare_review.prepare_review(shallow, base, self.head)
+            make_snapshot.assert_not_called()
+        self.assertEqual(
+            {
+                path.relative_to(shallow): path.read_bytes()
+                for path in shallow.rglob("*")
+                if path.is_file()
+            },
+            before,
+        )
+
     def test_rejects_invalid_programmatic_shas_before_git_or_snapshot_setup(
         self,
     ) -> None:
