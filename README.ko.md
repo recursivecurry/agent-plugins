@@ -117,13 +117,12 @@ Lead replies with the answer. No staged openers, empty contrasts, forced triads,
 dramatic closers, or Markdown decoration. Load natural-clear-writing when
 writing or editing prose, docs, commit messages, or UI strings.
 
-한국어 답변과 진행 보고는 명사 나열이나 모호한 비유 대신 조사·어미로 대상과 행동의 관계를 밝힌다. 사실·시제·가능성·완료 여부와 요청된 문체·언어, 인용·코드·프로젝트 관례를 보존하며, 제목·버튼·표·목록을 제외한 설명은 완결된 문장으로 쓴다.
+한국어 답변과 진행 보고는 명사 나열 대신 조사와 어미로 대상과 행동의 관계를 밝히고, 모호한 비유는 구체적인 말로 바꾼다. 없는 사실을 보태거나 기존 사실·시제·가능성·완료 여부를 바꾸지 않으며, 요청된 문체·언어와 프로젝트 관례를 따르고 인용·코드를 보존하되, 제목·버튼·표·목록 외의 설명은 완결된 문장으로 쓴다.
 ```
 
 위 한국어 문단은 두 플러그인의 세션 hook에도 포함됩니다. 전체 스킬을 로드하지 않아도 일반
 답변과 진행 보고에 적용되며, 한국어 글을 쓰거나 고칠 때는 스킬의 상세 한국어 규칙도 적용됩니다.
-[fluent-korean](https://github.com/snflkd/fluent-korean)의 명확한 한국어 작성 원칙을 참고했습니다.
-Tao는 의미와 요청된 문체를 보존하면서 문맥에 맞게 표현을 조정합니다.
+한국어 지침은 [fluent-korean](https://github.com/snflkd/fluent-korean)의 명확한 한국어 작성 원칙을 참고했습니다.
 별도 output-style을 설치할 필요는 없습니다.
 
 ## 평가
@@ -143,8 +142,7 @@ tools/eval.sh --judge-model sonnet
 
 한 턴짜리 한국어 채팅 사례는 기본 답변 동작을 확인합니다. 통과 점수만으로 hook의 개선 효과를
 입증할 수는 없습니다. 플러그인 적용 결과와 기준선을 비교하고, 실행기가 SessionStart hook을
-실행하며 `allowed_tools: []`를 준수하는지 확인해야 합니다. 이 사례에서 해당 실행기 동작은
-아직 검증하지 않았습니다.
+실행하며 `allowed_tools: []`를 준수하는지 확인해야 합니다.
 
 `claude plugin eval`은 플러그인 디렉터리 안의 케이스만 읽는데, 평가 케이스는 플러그인에
 포함되어 배포되지 않습니다. 그래서 이 스크립트는 출력을 다시 빌드하고 `plugins/claude/tao/`와

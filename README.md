@@ -130,14 +130,14 @@ Lead replies with the answer. No staged openers, empty contrasts, forced triads,
 dramatic closers, or Markdown decoration. Load natural-clear-writing when
 writing or editing prose, docs, commit messages, or UI strings.
 
-한국어 답변과 진행 보고는 명사 나열이나 모호한 비유 대신 조사·어미로 대상과 행동의 관계를 밝힌다. 사실·시제·가능성·완료 여부와 요청된 문체·언어, 인용·코드·프로젝트 관례를 보존하며, 제목·버튼·표·목록을 제외한 설명은 완결된 문장으로 쓴다.
+한국어 답변과 진행 보고는 명사 나열 대신 조사와 어미로 대상과 행동의 관계를 밝히고, 모호한 비유는 구체적인 말로 바꾼다. 없는 사실을 보태거나 기존 사실·시제·가능성·완료 여부를 바꾸지 않으며, 요청된 문체·언어와 프로젝트 관례를 따르고 인용·코드를 보존하되, 제목·버튼·표·목록 외의 설명은 완결된 문장으로 쓴다.
 ```
 
 The Korean paragraph is also included in both plugins' session hooks; it applies to ordinary
 replies and progress reports without loading the full skill. Korean writing and editing tasks
-use the skill's detailed Korean reference as well. It draws on the clarity goals of
-[fluent-korean](https://github.com/snflkd/fluent-korean). Tao adjusts wording to the context
-while preserving meaning and the requested voice. No separate output style is required.
+use the skill's detailed Korean reference as well. The Korean guidance draws on the clarity
+goals of [fluent-korean](https://github.com/snflkd/fluent-korean).
+No separate output style is required.
 
 ## Evals
 
@@ -157,7 +157,7 @@ the skill. Results land in `evals/results/`, which is ignored by git.
 The one-turn Korean chat case checks basic reply behavior; a passing score alone does not
 demonstrate that the hook improves it. Compare the plugin and no-plugin results, and verify
 that the runner executes the SessionStart hook and honors `allowed_tools: []` before drawing
-conclusions about the hook. These runner behaviors have not yet been verified for this case.
+conclusions about the hook.
 
 `claude plugin eval` reads cases only from inside the plugin directory, and the cases are not
 shipped with the plugin. The script rebuilds the outputs, copies `plugins/claude/tao/` and
