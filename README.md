@@ -142,7 +142,8 @@ No separate output style is required.
 ## Evals
 
 `evals/` holds cases for `natural-clear-writing`: an English doc, a Korean doc, a bilingual
-note, compressed Korean prose, an ordinary Korean chat reply, UI strings with placeholders,
+note, compressed Korean prose, an ordinary Korean chat reply, Korean metaphors that the
+context does or does not explain, UI strings with placeholders,
 and a commit message. Each case has an LLM grader that
 checks formulaic phrasing is gone and every fact, placeholder, and register survives.
 
