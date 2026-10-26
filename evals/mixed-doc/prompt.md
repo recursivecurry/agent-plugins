@@ -7,8 +7,8 @@ Edit this bilingual release note so both parts read naturally. Keep each part in
 
 ## What's new
 
-In this release, we're thrilled to announce that the export feature has been completely reimagined from the ground up. It's not just faster — it's smarter. Exports of up to 50,000 rows now complete in under 4 seconds, and the CSV output includes a BOM so Excel opens it correctly.
+In this release, we're thrilled to announce that the export feature has been completely reimagined from the ground up. Speed is only half the story; the other half is intelligence. Exports of up to 50,000 rows now complete in under 4 seconds, and the CSV output includes a BOM so Excel opens it correctly.
 
 ## 새로운 기능
 
-이번 릴리스에서는 내보내기 기능에 대한 전면적인 재설계가 이루어졌습니다. 이를 통해 50,000행까지의 내보내기가 4초 이내에 완료되어지며, CSV 출력에 BOM이 포함되어 Excel에서 정상적으로 열리게 됩니다.
+이번 릴리스에서는 내보내기 기능을 전면적으로 재설계하는 작업이 진행되었습니다. 그 결과로서 50,000행까지의 내보내기를 4초 이내에 완료하는 것이 가능하며, CSV 출력에 BOM이 포함되어 Excel에서 정상적으로 열리게 됩니다.
