@@ -117,14 +117,14 @@ Lead replies with the answer. No staged openers, empty contrasts, forced triads,
 dramatic closers, or Markdown decoration. Load natural-clear-writing when
 writing or editing prose, docs, commit messages, or UI strings.
 
-한국어 답변과 진행 보고에서는 필요한 조사와 어미를 갖춘 문장으로 쓰고, 명사 나열이나 모호한 비유 대신 대상과 행동의 관계를 분명히 하되, 없는 사실을 보태거나 시제·가능성·완료 여부를 바꾸지 않는다. 사용자가 요청한 문체와 언어, 인용·코드·프로젝트 관례를 존중하며, 제목·버튼·표·목록은 용도에 맞게 짧게 쓴다.
+한국어 답변과 진행 보고는 명사 나열이나 모호한 비유 대신 조사·어미로 대상과 행동의 관계를 밝힌다. 사실·시제·가능성·완료 여부와 요청된 문체·언어, 인용·코드·프로젝트 관례를 보존하며, 제목·버튼·표·목록을 제외한 설명은 완결된 문장으로 쓴다.
 ```
 
 위 한국어 문단은 두 플러그인의 세션 hook에도 포함됩니다. 전체 스킬을 로드하지 않아도 일반
 답변과 진행 보고에 적용되며, 한국어 글을 쓰거나 고칠 때는 스킬의 상세 한국어 규칙도 적용됩니다.
-[fluent-korean](https://github.com/snflkd/fluent-korean)의 명확한 한국어 작성 원칙을 참고하되,
-의미와 요청된 문체를 보존합니다. 문장을 늘리려고 수식어를 덧붙이거나, 엠대시를 일괄 금지하거나,
-익숙한 용어를 격식 있는 어휘로 바꾸지 않습니다. 별도 output-style을 설치할 필요는 없습니다.
+[fluent-korean](https://github.com/snflkd/fluent-korean)의 명확한 한국어 작성 원칙을 참고했습니다.
+Tao는 의미와 요청된 문체를 보존하면서 문맥에 맞게 표현을 조정합니다.
+별도 output-style을 설치할 필요는 없습니다.
 
 ## 평가
 
@@ -140,6 +140,11 @@ tools/eval.sh --judge-model sonnet
 기본 채점 모델(haiku)은 한국어 채점 기준을 잘못 읽으므로 더 강한 모델을 지정하세요. 실행하면
 플러그인이 없는 기준선도 함께 채점해 차이를 보고합니다. 스킬을 수정할 때 살펴볼 숫자가 이
 차이입니다. 결과는 `evals/results/`에 저장되며, 이 디렉터리는 git이 무시합니다.
+
+한 턴짜리 한국어 채팅 사례는 기본 답변 동작을 확인합니다. 통과 점수만으로 hook의 개선 효과를
+입증할 수는 없습니다. 플러그인 적용 결과와 기준선을 비교하고, 실행기가 SessionStart hook을
+실행하며 `allowed_tools: []`를 준수하는지 확인해야 합니다. 이 사례에서 해당 실행기 동작은
+아직 검증하지 않았습니다.
 
 `claude plugin eval`은 플러그인 디렉터리 안의 케이스만 읽는데, 평가 케이스는 플러그인에
 포함되어 배포되지 않습니다. 그래서 이 스크립트는 출력을 다시 빌드하고 `plugins/claude/tao/`와

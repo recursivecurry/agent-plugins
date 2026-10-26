@@ -130,15 +130,14 @@ Lead replies with the answer. No staged openers, empty contrasts, forced triads,
 dramatic closers, or Markdown decoration. Load natural-clear-writing when
 writing or editing prose, docs, commit messages, or UI strings.
 
-한국어 답변과 진행 보고에서는 필요한 조사와 어미를 갖춘 문장으로 쓰고, 명사 나열이나 모호한 비유 대신 대상과 행동의 관계를 분명히 하되, 없는 사실을 보태거나 시제·가능성·완료 여부를 바꾸지 않는다. 사용자가 요청한 문체와 언어, 인용·코드·프로젝트 관례를 존중하며, 제목·버튼·표·목록은 용도에 맞게 짧게 쓴다.
+한국어 답변과 진행 보고는 명사 나열이나 모호한 비유 대신 조사·어미로 대상과 행동의 관계를 밝힌다. 사실·시제·가능성·완료 여부와 요청된 문체·언어, 인용·코드·프로젝트 관례를 보존하며, 제목·버튼·표·목록을 제외한 설명은 완결된 문장으로 쓴다.
 ```
 
 The Korean paragraph is also included in both plugins' session hooks; it applies to ordinary
 replies and progress reports without loading the full skill. Korean writing and editing tasks
 use the skill's detailed Korean reference as well. It draws on the clarity goals of
-[fluent-korean](https://github.com/snflkd/fluent-korean), while preserving meaning and the
-requested voice: do not add modifiers just to lengthen a sentence, ban em dashes outright,
-or replace familiar terminology with formal vocabulary. No separate output style is required.
+[fluent-korean](https://github.com/snflkd/fluent-korean). Tao adjusts wording to the context
+while preserving meaning and the requested voice. No separate output style is required.
 
 ## Evals
 
@@ -154,6 +153,11 @@ tools/eval.sh --judge-model sonnet
 The default judge (haiku) misreads the Korean criteria, so pass a stronger judge. The run also
 scores a no-plugin baseline and reports the delta, which is the number to watch when editing
 the skill. Results land in `evals/results/`, which is ignored by git.
+
+The one-turn Korean chat case checks basic reply behavior; a passing score alone does not
+demonstrate that the hook improves it. Compare the plugin and no-plugin results, and verify
+that the runner executes the SessionStart hook and honors `allowed_tools: []` before drawing
+conclusions about the hook. These runner behaviors have not yet been verified for this case.
 
 `claude plugin eval` reads cases only from inside the plugin directory, and the cases are not
 shipped with the plugin. The script rebuilds the outputs, copies `plugins/claude/tao/` and
