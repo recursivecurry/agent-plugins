@@ -116,12 +116,21 @@ references/done-checklist.md from the skill directory and work through it.
 Lead replies with the answer. No staged openers, empty contrasts, forced triads,
 dramatic closers, or Markdown decoration. Load natural-clear-writing when
 writing or editing prose, docs, commit messages, or UI strings.
+
+한국어 답변과 진행 보고에서는 필요한 조사와 어미를 갖춘 문장으로 쓰고, 명사 나열이나 모호한 비유 대신 대상과 행동의 관계를 분명히 하되, 없는 사실을 보태거나 시제·가능성·완료 여부를 바꾸지 않는다. 사용자가 요청한 문체와 언어, 인용·코드·프로젝트 관례를 존중하며, 제목·버튼·표·목록은 용도에 맞게 짧게 쓴다.
 ```
+
+위 한국어 문단은 두 플러그인의 세션 hook에도 포함됩니다. 전체 스킬을 로드하지 않아도 일반
+답변과 진행 보고에 적용되며, 한국어 글을 쓰거나 고칠 때는 스킬의 상세 한국어 규칙도 적용됩니다.
+[fluent-korean](https://github.com/snflkd/fluent-korean)의 명확한 한국어 작성 원칙을 참고하되,
+의미와 요청된 문체를 보존합니다. 문장을 늘리려고 수식어를 덧붙이거나, 엠대시를 일괄 금지하거나,
+익숙한 용어를 격식 있는 어휘로 바꾸지 않습니다. 별도 output-style을 설치할 필요는 없습니다.
 
 ## 평가
 
 `evals/`에는 `natural-clear-writing`의 평가 케이스가 있습니다. 영어 문서, 한국어 문서, 두
-언어가 섞인 메모, 플레이스홀더가 있는 UI 문자열, 커밋 메시지입니다. 각 케이스에는 LLM 채점기가
+언어가 섞인 메모, 압축된 한국어 문장, 일반 한국어 채팅 답변, 플레이스홀더가 있는 UI 문자열,
+커밋 메시지입니다. 각 케이스에는 LLM 채점기가
 있어 상투적인 표현이 사라졌는지, 모든 사실과 플레이스홀더와 어조가 보존되었는지 확인합니다.
 
 ```bash

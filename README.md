@@ -129,12 +129,22 @@ the short form to every session. Without a plugin, put it in `CLAUDE.md` (or `AG
 Lead replies with the answer. No staged openers, empty contrasts, forced triads,
 dramatic closers, or Markdown decoration. Load natural-clear-writing when
 writing or editing prose, docs, commit messages, or UI strings.
+
+한국어 답변과 진행 보고에서는 필요한 조사와 어미를 갖춘 문장으로 쓰고, 명사 나열이나 모호한 비유 대신 대상과 행동의 관계를 분명히 하되, 없는 사실을 보태거나 시제·가능성·완료 여부를 바꾸지 않는다. 사용자가 요청한 문체와 언어, 인용·코드·프로젝트 관례를 존중하며, 제목·버튼·표·목록은 용도에 맞게 짧게 쓴다.
 ```
+
+The Korean paragraph is also included in both plugins' session hooks; it applies to ordinary
+replies and progress reports without loading the full skill. Korean writing and editing tasks
+use the skill's detailed Korean reference as well. It draws on the clarity goals of
+[fluent-korean](https://github.com/snflkd/fluent-korean), while preserving meaning and the
+requested voice: do not add modifiers just to lengthen a sentence, ban em dashes outright,
+or replace familiar terminology with formal vocabulary. No separate output style is required.
 
 ## Evals
 
 `evals/` holds cases for `natural-clear-writing`: an English doc, a Korean doc, a bilingual
-note, UI strings with placeholders, and a commit message. Each case has an LLM grader that
+note, compressed Korean prose, an ordinary Korean chat reply, UI strings with placeholders,
+and a commit message. Each case has an LLM grader that
 checks formulaic phrasing is gone and every fact, placeholder, and register survives.
 
 ```bash
