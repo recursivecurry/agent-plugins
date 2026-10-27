@@ -1,4 +1,4 @@
-# Execution and recovery
+# Execution
 
 ## Establish scope and readiness
 
@@ -47,7 +47,8 @@ in it. Persist after every transition and before a pause:
    accepted findings, fix and reply with the change and validation results. For rejected
    findings, reply with the specific disagreement and checkable evidence. Distinguish optional
    improvements from defects; handling all comments does not mean accepting every suggestion.
-5. Request re-review from the same reviewer, supplying new SHA, changes, replies and evidence.
+5. Request re-review from the same reviewer using the compact update in the review packet.
+   Preserve the complete finding ledger and its accessible location in the progress record.
    The reviewer independently verifies both fixes and rebuttals and confirms each finding's
    disposition. Resolve threads only when appropriate under repository conventions. An
    implementer's Resolve action cannot replace reviewer confirmation or final approval.
@@ -60,50 +61,6 @@ in it. Persist after every transition and before a pause:
    independently approves the final revision. Require an actual GitHub `APPROVED` review
    from the eligible reviewer identity with its `commit_id` equal to the reviewed HEAD.
    A comment saying “approved,” resolved threads, or the implementer's assertion is insufficient.
-8. Apply the merge gate below, merge using the allowed method, then fetch the PR to verify
-   actual merged state and merge SHA. A queued or requested merge remains pending. Only
+8. Read and apply [the merge gate](merge.md), merge using the allowed method, then fetch
+   the PR to verify actual merged state and merge SHA. A queued or requested merge remains pending. Only
    after merge confirmation mark the item merged and proceed directly to the next ready item.
-
-## Merge gate
-
-Immediately before merging, fetch fresh PR metadata, reviews, required checks, and applicable
-repository rules. Use the available GitHub API, connector or CLI; record the returned evidence
-and SHAs rather than assuming a tool's success message establishes approval or checks.
-
-Require the current PR HEAD to equal the recorded reviewed and approved SHA. Verify the
-approval is submitted, still valid, from the required account, and not dismissed; account for
-blocking reviews and all repository-required approvals. Require all findings to have a
-reviewer-confirmed disposition. Fetch check runs and commit statuses for this revision and
-require the conclusions accepted by repository policy. Pending, failed, missing, stale or
-uninspectable required results block merge. Record an explicitly verified absence of required
-checks if the repository has none; absence of access is not evidence of absence.
-
-If CI validates a synthetic merge commit or merge-queue candidate, verify its relationship
-to the current HEAD and base according to repository policy and record both SHAs. Refresh
-candidate checks when that relationship changes. If the HEAD changes after approval, return
-to validation and independent re-review for the new revision; never reuse approval for an
-older SHA. Merge with an expected-head condition when the tool supports it. If it does not,
-require an equivalent atomic repository gate protecting the approved revision; otherwise
-stop rather than risk merging an unreviewed race. Never use an admin bypass or turn off rules.
-
-## Block, continue, and resume
-
-Repair ordinary implementation and check failures autonomously. For a transient external
-failure, allow at most three attempts of the same operation, with bounded backoff and a
-status update; do not replay a mutation until checking whether it succeeded remotely.
-Permission denial, unavailable models, invalid review identity, unsupported isolation or
-invocation, contradictory requirements, and exhausted external retries are real blockers.
-Record them precisely instead of retrying indefinitely or asking for routine permission.
-
-Continue with independent ready items when an item is blocked. Keep its dependents blocked.
-Global invocation or model/identity prerequisites block the whole workflow. When no item
-can proceed, report item states, evidence and the smallest missing input or capability.
-
-After interruption, load the progress record, original requirements and current repository
-state. Reuse branches, PRs and the existing reviewer; do not duplicate PRs or skip unfinished
-items. Refresh remote HEAD, approval, checks and merge state, and invalidate stale evidence.
-Continue within the original invocation's scope when its trusted authorization is preserved;
-otherwise require a new actual slash invocation. A resumed conversation is not proof of merge.
-
-The final report lists every item, PR, actual merge result and merge SHA. Include incomplete
-states and blockers. Claim overall completion only when all items have verified merges.
