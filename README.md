@@ -95,16 +95,21 @@ The files ship in all three distributions, but execution needs host capabilities
 
 | Target | Invocation protection | Execution requirements |
 | --- | --- | --- |
-| Claude Code | Native `disable-model-invocation: true` | An external integration providing the Astra/Sol model pair and isolated review contexts; native Claude subagents cannot supply that pair |
+| Claude Code | Native `disable-model-invocation: true` | Verified Fable/Opus model selectors and independent review contexts; use native subagents when they meet these requirements |
 | Codex plugin | Native `policy.allow_implicit_invocation: false` | A verified integration for the specified slash command; native `$` mentions and `/skills` selection do not satisfy it |
 | Generic | Claude's opt-out field is included; other hosts need their own native control | A host that enforces slash-only invocation and exposes the required models and context isolation |
 
 No slash adapter is included. Unsupported hosts leave the workflow inactive and report the
 missing capability. Every execution also requires a distinct GitHub reviewer account eligible
 to approve the PR; another model alone does not supply another account. Read the
-[platform support and setup](src/skills/ship-until-done/references/platforms.md) before enabling
+[platform support and setup](src/skills/ship-until-done/references/platforms.md.tmpl) before enabling
 it. Generic Codex installations must also configure its native implicit-invocation opt-out.
-The skill and references are in English. No session hook starts this workflow.
+The skill loads references by stage: platform preflight and execution before work, the review
+packet at first review, the merge gate before each merge, and recovery on a blocker or resume.
+Re-review sends changed SHAs, findings and evidence while preserving the complete accessible
+finding ledger. Codex pairs GPT-Astra with GPT-Sol; Claude Code pairs Fable with Opus.
+Actual IDs must be verified with the host. The skill and references are in English.
+No session hook starts this workflow.
 
 ## What the plugins add
 
@@ -219,8 +224,7 @@ them that it did not produce, so hand edits and extra files there do not survive
 distributions. Claude Code and Codex read it when they work in this repository.
 
 1. Edit files under `src/`. A `.tmpl` file is rendered once per distribution, and everything
-   else is copied as it is. Every distribution gets the same text unless a template uses a
-   target block:
+   else is copied as it is. Templates can select text with a target block:
 
    ```markdown
    <!-- target:claude -->
@@ -230,6 +234,20 @@ distributions. Claude Code and Codex read it when they work in this repository.
 
    The targets are `claude`, `codex`, and `generic`. A marker must be a whole line, and
    blocks do not nest.
+
+   For model names that follow the deployment target, use `{{model:GPT-Astra}}`,
+   `{{model:GPT-Sol}}`, `{{model:GPT-Terra}}`, or `{{model:GPT-Luna}}` in templates.
+   Regeneration maps them as follows:
+
+   | Codex | Claude Code |
+   | --- | --- |
+   | GPT-Astra | Fable |
+   | GPT-Sol | Opus |
+   | GPT-Terra | Sonnet |
+   | GPT-Luna | Haiku |
+
+   Generic output retains the Codex names. Literal names and non-template files stay
+   unchanged. These family names do not establish runtime model IDs; verify IDs with the host.
 
    Anything that only one agent supports goes in that agent's directory: a hook definition, a
    subagent, a file that names the agent's own variables. `src/claude/` is copied into the

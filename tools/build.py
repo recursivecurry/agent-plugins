@@ -75,6 +75,13 @@ REQUIRED_FIELDS = ("name", "description")
 GENERATED_NOTICE = "# Generated from {source}. Edit the source, not this file.\n"
 
 MARKER = re.compile(r"[ \t]*<!-- (?:/target|target:(?P<target>\S*)) -->[ \t]*\n?")
+MODEL_TOKEN = re.compile(r"\{\{model:([^{}]+)\}\}")
+CLAUDE_MODELS = {
+    "GPT-Astra": "Fable",
+    "GPT-Sol": "Opus",
+    "GPT-Terra": "Sonnet",
+    "GPT-Luna": "Haiku",
+}
 FIELD = re.compile(r"(?P<key>[A-Za-z_][\w-]*):(?P<value>.*)")
 LINK = re.compile(r"\]\(([^)\s]+)\)")
 SKILL_NAME = re.compile(r"[a-z0-9]+(-[a-z0-9]+)*")
@@ -149,8 +156,22 @@ def render_lines(text: str, target: str, path: str) -> list[tuple[int, str]]:
     return kept
 
 
+def render_model_lines(text: str, target: str, path: str) -> list[tuple[int, str]]:
+    """Resolve model tokens after selecting source lines for a target."""
+    resolved = []
+    for number, line in render_lines(text, target, path):
+        def model_name(match: re.Match) -> str:
+            name = match[1]
+            if name not in CLAUDE_MODELS:
+                raise BuildError(path, f"unknown model '{name}'", number)
+            return CLAUDE_MODELS[name] if target == "claude" else name
+
+        resolved.append((number, MODEL_TOKEN.sub(model_name, line)))
+    return resolved
+
+
 def render_template(text: str, target: str, path: str, *, notice: bool) -> bytes:
-    lines = [line for _, line in render_lines(text, target, path)]
+    lines = [line for _, line in render_model_lines(text, target, path)]
     if notice:
         if not lines or lines[0].rstrip("\n") != FRONTMATTER_FENCE:
             raise BuildError(path, "frontmatter must open on line 1 with ---", 1)
@@ -380,7 +401,7 @@ def lint_template(path: str, text: str, skill: str | None) -> Iterator[BuildErro
     """Check markers, and the frontmatter of each rendering when skill is given."""
     for target in SKILL_ROOTS:
         try:
-            lines = render_lines(text, target, path)
+            lines = render_model_lines(text, target, path)
         except BuildError as error:
             yield error
             return
