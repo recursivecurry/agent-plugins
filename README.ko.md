@@ -95,16 +95,21 @@ cp -r skills/ship-until-done ~/.claude/skills/
 
 | 대상 | 자동 실행 방지 | 실행에 필요한 기능 |
 | --- | --- | --- |
-| Claude Code | 기본 설정인 `disable-model-invocation: true`를 적용합니다. | Astra/Sol 모델 쌍과 독립된 리뷰 컨텍스트를 제공하는 외부 연동이 필요합니다. 기본 Claude 서브 에이전트는 이 모델 쌍을 제공하지 않습니다. |
+| Claude Code | 기본 설정인 `disable-model-invocation: true`를 적용합니다. | 검증된 Fable/Opus 모델 선택 기능과 독립된 리뷰 컨텍스트가 필요합니다. 기본 서브 에이전트가 조건을 충족하면 사용할 수 있습니다. |
 | Codex 플러그인 | 기본 설정인 `policy.allow_implicit_invocation: false`를 적용합니다. | 지정된 슬래시 명령을 검증할 수 있는 연동이 필요합니다. 기본 `$` 호출과 `/skills` 선택은 이 조건을 충족하지 않습니다. |
 | Generic | Claude의 자동 호출 차단 필드를 포함합니다. 다른 호스트에는 해당 호스트의 기본 차단 설정이 필요합니다. | 슬래시 명령으로만 실행하도록 제한하고, 필요한 모델과 독립 컨텍스트를 제공하는 호스트가 필요합니다. |
 
 슬래시 명령 어댑터는 포함하지 않습니다. 지원하지 않는 호스트에서는 워크플로를 실행하지 않고
 부족한 기능을 알립니다. 실행하려면 PR 작성자와 별개로 유효한 승인을 제출할 수 있는 GitHub
 리뷰어 계정도 필요합니다. 모델을 바꾸는 것만으로 계정이 바뀌지는 않습니다. 사용하기 전에
-[플랫폼 지원 및 설정 안내](src/skills/ship-until-done/references/platforms.md)를 읽으세요.
+[플랫폼 지원 및 설정 안내](src/skills/ship-until-done/references/platforms.md.tmpl)를 읽으세요.
 Generic 스킬을 Codex에 설치했다면 Codex의 기본 자동 호출 차단 설정도 적용해야 합니다.
-스킬과 참조 문서는 영어로 작성되어 있습니다. 세션 hook은 이 워크플로를 시작하지 않습니다.
+참조 문서는 단계별로 읽습니다. 작업 전에는 플랫폼 사전 점검과 실행 지침, 첫 리뷰에는
+리뷰 패킷, 매 머지 전에는 머지 조건, 차단 또는 재개 시에는 복구 지침을 읽습니다.
+재리뷰에서는 변경 SHA·발견 사항·증거를 전달하고 전체 발견 사항 기록은 조회 가능한 위치에
+보존합니다. Codex는 GPT-Astra와 GPT-Sol, Claude Code는 Fable과 Opus를 짝지으며,
+실제 모델 ID는 호스트에서 검증해야 합니다. 스킬과 참조 문서는 영어로 작성되어 있습니다.
+세션 hook은 이 워크플로를 시작하지 않습니다.
 
 ## 플러그인이 추가하는 것
 
@@ -202,8 +207,7 @@ evals/                             평가 케이스, 배포되지 않습니다
 Code와 Codex는 이 저장소에서 작업할 때 이 파일을 읽습니다.
 
 1. `src/` 아래의 파일을 수정합니다. `.tmpl` 파일은 배포판마다 한 번씩 렌더링되고, 나머지
-   파일은 그대로 복사됩니다. 템플릿이 target block을 쓰지 않는 한 모든 배포판에 같은 글이
-   들어갑니다.
+   파일은 그대로 복사됩니다. 템플릿은 target block으로 배포판별 내용을 선택할 수 있습니다.
 
    ```markdown
    <!-- target:claude -->
@@ -213,6 +217,20 @@ Code와 Codex는 이 저장소에서 작업할 때 이 파일을 읽습니다.
 
    타깃은 `claude`, `codex`, `generic`입니다. 마커는 한 줄 전체를 차지해야 하고, 블록은
    중첩할 수 없습니다.
+
+   배포 대상에 맞춰 모델명을 바꾸려면 템플릿에 `{{model:GPT-Astra}}`,
+   `{{model:GPT-Sol}}`, `{{model:GPT-Terra}}`, `{{model:GPT-Luna}}`를 사용합니다.
+   배포판 재생성 시 다음과 같이 매칭합니다.
+
+   | Codex | Claude Code |
+   | --- | --- |
+   | GPT-Astra | Fable |
+   | GPT-Sol | Opus |
+   | GPT-Terra | Sonnet |
+   | GPT-Luna | Haiku |
+
+   Generic 출력은 Codex 이름을 유지합니다. 일반 텍스트의 모델명과 템플릿이 아닌 파일은
+   바꾸지 않습니다. 이 이름들은 모델 계열을 나타내며, 실행 모델 ID는 호스트에서 확인해야 합니다.
 
    한 에이전트만 지원하는 것은 그 에이전트의 디렉터리에 둡니다. hook 정의, subagent, 그
    에이전트의 변수 이름을 쓰는 파일이 여기에 해당합니다. `src/claude/`는 Claude Code

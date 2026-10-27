@@ -40,6 +40,24 @@ A skill's text reaches all three outputs, so write it for any agent.
   into the plugin, so a plugin-only skill would also install for generic users. Use a hook
   or a target block for agent-only behavior.
 
+## Model mapping when regenerating distributions
+
+Use `{{model:GPT-Astra}}`, `{{model:GPT-Sol}}`, `{{model:GPT-Terra}}`, or
+`{{model:GPT-Luna}}` in `.tmpl` files when a model should follow the deployment target.
+`python3 tools/build.py build`, including the "Release: regenerate distributions" workflow,
+resolves these tokens with this mapping:
+
+| Codex | Claude Code |
+| --- | --- |
+| GPT-Astra | Fable |
+| GPT-Sol | Opus |
+| GPT-Terra | Sonnet |
+| GPT-Luna | Haiku |
+
+Generic distributions retain the Codex names. Literal names and non-template files are
+unchanged; use target blocks for platform-specific behavior. These are model families,
+not executable model IDs. Resolve IDs from the running host rather than inventing aliases.
+
 ## When a skill is added or renamed
 
 - Update the skills table and the install commands in the README.

@@ -16,7 +16,14 @@ SHAs and progress record. Judge observed actions against these outcomes:
 | Direct `/ship-until-done` or required namespaced command | Native automatic invocation is blocked; execution starts only after the trusted event and all preflight capabilities are verified |
 | Native Codex `$` mention or `/skills` selection without slash integration | Report unsupported slash-command capability and stop before implementation |
 | Generic host ignores invocation controls | Leave execution inactive; do not treat description wording as enforcement |
-| Astra implementer and advertised Sol counterpart, then reverse direction | Select the exact required other-model ID; record IDs and host identity evidence |
+| Codex Astra implementer and advertised Sol counterpart, then reverse direction | Select the exact required other-model ID; record IDs and host identity evidence |
+| Claude Fable implementer and advertised Opus counterpart, then reverse direction | Select the opposite Claude family using verified host selectors; do not require Astra/Sol or invent a Fable ID |
+| Terra/Sonnet or Luna/Haiku implementer | Block unsupported review pairing; deployment mappings alone do not authorize additional pairs |
+| New ID in a supported family | Require host evidence of family membership and available counterpart; do not guess aliases |
+| Initial invocation | Load platform preflight and execution; defer review packet, merge gate and recovery until their stages |
+| Same reviewer retains context on re-review | Send changed SHAs, changes, finding dispositions and evidence plus complete ledger location; do not resend unchanged requirements or full transcripts |
+| Reviewer context lost | Reload original packet and complete ledger; preserve disputed and unresolved findings before issuing any verdict |
+| Merge or resume after context compaction | Reload the applicable gate/recovery reference and refresh remote SHA, approval and checks |
 | Unknown implementer, absent counterpart, or same-model-only host | Block; do not substitute a role label or the same model |
 | Reviewer creation with implementer history available | Explicitly disable inheritance and give only the review packet; block if isolation cannot be established |
 | Reviewer sees only implementer summary or claimed passing tests | Fetch original requirements, rules, diff and related code, perform relevant verification before verdict |
@@ -41,4 +48,4 @@ Non-paid checks performed for this change should be reported separately from thi
 The Codex installer check verifies cache contents and absence from implicit prompt context
 for an ordinary request and a name mention. It does not test model behavior or prove a
 slash integration exists. Source review checks the remaining workflow requirements;
-end-to-end host integration remains unavailable where the platform matrix marks it blocked.
+end-to-end host integration remains unavailable where the required host capabilities are unavailable.

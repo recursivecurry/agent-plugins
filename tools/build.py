@@ -75,6 +75,13 @@ REQUIRED_FIELDS = ("name", "description")
 GENERATED_NOTICE = "# Generated from {source}. Edit the source, not this file.\n"
 
 MARKER = re.compile(r"[ \t]*<!-- (?:/target|target:(?P<target>\S*)) -->[ \t]*\n?")
+MODEL_TOKEN = re.compile(r"\{\{model:([^{}]+)\}\}")
+CLAUDE_MODELS = {
+    "GPT-Astra": "Fable",
+    "GPT-Sol": "Opus",
+    "GPT-Terra": "Sonnet",
+    "GPT-Luna": "Haiku",
+}
 FIELD = re.compile(r"(?P<key>[A-Za-z_][\w-]*):(?P<value>.*)")
 LINK = re.compile(r"\]\(([^)\s]+)\)")
 SKILL_NAME = re.compile(r"[a-z0-9]+(-[a-z0-9]+)*")
@@ -129,7 +136,13 @@ def render_lines(text: str, target: str, path: str) -> list[tuple[int, str]]:
         marker = MARKER.fullmatch(line)
         if marker is None:
             if open_target in (None, target):
-                kept.append((number, line))
+                def model_name(match: re.Match) -> str:
+                    name = match[1]
+                    if name not in CLAUDE_MODELS:
+                        raise BuildError(path, f"unknown model '{name}'", number)
+                    return CLAUDE_MODELS[name] if target == "claude" else name
+
+                kept.append((number, MODEL_TOKEN.sub(model_name, line)))
             continue
         name = marker["target"]
         if name is None:

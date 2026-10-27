@@ -13,7 +13,7 @@ PR: <URL and number>
 Revision: <exact HEAD SHA, base ref/SHA>
 Validation: <required checks, commands, environment constraints, evidence locations>
 Reviewer setup: <required other-model ID; isolated context; eligible GitHub identity>
-Prior rounds: <all findings, replies, changed SHAs, fixes, rebuttals, verification evidence>
+Finding ledger: <accessible location; complete findings, replies, SHAs and verification evidence>
 Progress record: <location>
 
 Read the original requirements, repository instructions, diff and related code yourself.
@@ -28,8 +28,18 @@ have a justified disposition, submit APPROVE on GitHub for that exact SHA using 
 reviewer identity. Otherwise request changes with evidence or report the precise blocker.
 ```
 
+## Re-review update
+
+Reuse the existing reviewer context. Send only the new HEAD/base SHAs, changes since the
+last round, finding IDs with fixes or rebuttals and verification evidence, and the complete
+ledger's location. The reviewer reads the changed diff, verifies the ledger including every
+unresolved or disputed finding, and independently applies the same final-approval criteria.
+Do not resend unchanged requirements or the full transcript while they remain in context.
+If reviewer context is lost, reload this packet and the complete ledger before review;
+if a successor is unavoidable, preserve the blocker and never replace a dissenting reviewer
+to seek approval.
+
 Reply to each finding with its ID/location, accepted or disputed disposition, the code change
 or counterevidence, validation command/result and relevant SHA. The reviewer checks these
-claims directly and records confirmation or the remaining problem. Give the reviewer every
-prior finding on re-review, including disputed and unresolved findings; never filter by
-whether the implementer agrees.
+claims directly and records confirmation or the remaining problem. Keep every prior finding
+accessible on re-review, including disputed and unresolved findings; never filter by whether the implementer agrees.

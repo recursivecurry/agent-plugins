@@ -104,6 +104,21 @@ class RenderTest(unittest.TestCase):
         text = "{{ value }} {% tag %} <!-- a comment -->\n"
         self.assertEqual(self.render(text, "claude"), text)
 
+    def test_model_mapping_for_each_distribution(self) -> None:
+        text = "{{model:GPT-Astra}} {{model:GPT-Sol}} {{model:GPT-Terra}} {{model:GPT-Luna}}\n"
+        for target in ("codex", "generic"):
+            with self.subTest(target=target):
+                self.assertEqual(self.render(text, target), "GPT-Astra GPT-Sol GPT-Terra GPT-Luna\n")
+        self.assertEqual(self.render(text, "claude"), "Fable Opus Sonnet Haiku\n")
+
+    def test_unknown_model_reports_source_location(self) -> None:
+        with self.assertRaisesRegex(build.BuildError, r"^t\.tmpl:2: unknown model 'GPT-Unknown'"):
+            self.render("Title\n{{model:GPT-Unknown}}\n", "claude")
+
+    def test_model_mapping_leaves_literal_names_unchanged(self) -> None:
+        text = "GPT-Astra gpt-6-astra Fable\n"
+        self.assertEqual(self.render(text, "claude"), text)
+
     def test_markers_work_inside_frontmatter(self) -> None:
         text = (
             "---\nname: demo\n<!-- target:claude -->\ndescription: C\n<!-- /target -->\n"
@@ -225,6 +240,23 @@ class BuildTest(SourceTreeCase):
         self.build()
         extra = self.root / "skills/demo/references/extra.md"
         self.assertEqual(extra.read_text(), "Extra.\n")
+
+    def test_model_mapping_renders_linked_references_per_target(self) -> None:
+        write(self.root, SKILL_SOURCE, SKILL + "\n[Models](references/models.md)\n")
+        write(
+            self.root,
+            "src/skills/demo/references/models.md.tmpl",
+            "{{model:GPT-Astra}} / {{model:GPT-Sol}}\n",
+        )
+        write(self.root, "src/skills/demo/references/literal.md", "{{model:GPT-Astra}}\n")
+        self.build()
+        for target, directory in build.SKILL_ROOTS.items():
+            with self.subTest(target=target):
+                references = self.root / directory / "demo/references"
+                expected = "Fable / Opus\n" if target == "claude" else "GPT-Astra / GPT-Sol\n"
+                self.assertEqual((references / "models.md").read_text(), expected)
+                self.assertFalse((references / "models.md.tmpl").exists())
+                self.assertEqual((references / "literal.md").read_text(), "{{model:GPT-Astra}}\n")
 
     def test_copies_non_templates_byte_for_byte(self) -> None:
         binary = b"\x00\xff\r\n<!-- target:claude -->\n"
