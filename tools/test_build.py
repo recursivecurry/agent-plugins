@@ -430,6 +430,29 @@ class LintTest(SourceTreeCase):
             "src/skills/demo/references/note.md:1: 'tao:' is only allowed"
         )
 
+    def test_model_tokens_do_not_hide_shared_agent_specific_terms(self) -> None:
+        for term in build.AGENT_SPECIFIC_IN_SKILLS:
+            with self.subTest(term=term):
+                write(self.root, SKILL_SOURCE, SKILL + f"Ask {{{{model:GPT-Astra}}}} to follow {term}x.\n")
+                self.assert_violation(
+                    f"{SKILL_SOURCE}:7: '{term}' is only allowed inside a target block"
+                )
+
+    def test_model_tokens_allow_agent_specific_terms_in_target_blocks(self) -> None:
+        for target in build.SKILL_ROOTS:
+            with self.subTest(target=target):
+                block = (
+                    f"<!-- target:{target} -->\n"
+                    "Ask {{model:GPT-Astra}} to follow AGENTS.md, CLAUDE.md and tao:demo.\n"
+                    "<!-- /target -->\n"
+                )
+                write(self.root, SKILL_SOURCE, SKILL + block)
+                self.assertEqual(build.lint_violations(self.root), [])
+
+    def test_unknown_model_is_still_rejected_by_lint(self) -> None:
+        write(self.root, SKILL_SOURCE, SKILL + "{{model:GPT-Unknown}}\n")
+        self.assert_violation(f"{SKILL_SOURCE}:7: unknown model 'GPT-Unknown'")
+
     def test_agent_specific_terms_are_allowed_in_a_target_block(self) -> None:
         block = (
             "<!-- target:claude -->\nLoad tao:demo. See CLAUDE.md.\n<!-- /target -->\n"
