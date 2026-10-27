@@ -5,7 +5,7 @@ description: Write or edit human-facing prose so it is clear, natural, and free 
 license: MIT
 metadata:
   author: recursivecurry
-  version: 2.2.0
+  version: 2.2.1
 ---
 
 # Natural, clear writing
