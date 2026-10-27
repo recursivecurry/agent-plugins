@@ -1,37 +1,33 @@
 ---
 # Generated from src/skills/ship-until-done/SKILL.md.tmpl. Edit the source, not this file.
 name: ship-until-done
-description: Complete an explicit task list through implementation, independent cross-model review, approval, and merge. Run only after the developer invokes /ship-until-done (namespaced where required). Never activate from task context, an ordinary development request, or a mention of the name.
+description: Complete a task list through implementation, independent cross-model review, approval, and merge. Use only on direct /ship-until-done invocation (namespaced where required), never from ordinary requests, quoted commands, or name mentions.
 disable-model-invocation: true
 argument-hint: "[task list or source]"
 license: MIT
 metadata:
   author: recursivecurry
-  version: 1.0.0
+  version: 1.1.0
 ---
 
 # Ship until done
 
-Start only from an actual developer slash-command invocation. Quoted commands, skill
-mentions, ordinary requests, and model-selected loads do not authorize this workflow.
-Read [platform support](references/platforms.md) first. If the host cannot enforce this
-boundary or supply the required reviewer, stop with the specific unsupported capability.
+Start only on direct developer slash invocation, never quoted commands or incidental mentions.
+Plugin command: `/tao:ship-until-done`. Review pair: Fable ↔ Opus.
 
-The plugin command is `/tao:ship-until-done`. Native Claude models cannot satisfy the
-Astra/Sol review pair; require a verified external agent integration before proceeding.
+Load references at their stage; do not preload later stages:
 
-After the invocation and capability checks, follow [the workflow](references/workflow.md).
-Fix the supplied scope, acceptance criteria, dependency order, and durable progress record.
-For each item: implement and validate, create its PR, obtain independent review from the
-other model, assess and answer every finding with evidence, fix or rebut, request independent
-re-review, obtain a valid GitHub approval, verify revision and checks, and merge.
+1. **Before work:** read [preflight](references/platforms.md) and [execution](references/workflow.md).
+   Verify capabilities and identities; freeze scope, criteria and dependencies in a durable record.
+2. **Each ready item:** implement, validate, open its PR. At first review, read
+   [review packet](references/review-packet.md). Use an isolated other-model reviewer; retain
+   that reviewer through fixes, rebuttals and re-review.
+3. **Before every merge:** read [merge gate](references/merge.md). Require reviewer-confirmed
+   findings, current-SHA approval and required checks. Confirm actual merge and merge SHA.
+4. **Blocker or resume:** read [recovery](references/recovery.md); preserve state, refresh
+   evidence and continue independent items.
 
-Use [the review packet](references/review-packet.md) for a fresh reviewer context. Never
-inherit the implementer's conversation or internal conclusions. Keep the same reviewer
-through disagreements; thread resolution alone is insufficient.
-
-Continue directly to the next item without asking for permission already granted by this
-invocation. Respect actual host permission gates and repository policy. Preserve blockers
-and resume safely; never bypass checks, weaken acceptance criteria, or call failed work
-complete. Report every item's PR and verified merge result. Overall completion requires
-every supplied item to be merged.
+Re-read references lost from context. Continue within the authorized scope without redundant
+permission requests; respect repository rules and host gates. Never bypass checks, weaken
+criteria or replace a dissenting reviewer. Report every item's PR, merge result and SHA.
+Completion requires every supplied item to be verified merged.
