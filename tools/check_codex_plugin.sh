@@ -40,14 +40,22 @@ main() {
     exit 1
   fi
 
-  expected="$(find "$SKILLS_SRC" -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | sed "s/^/${PLUGIN}:/" | sort)"
+  expected="$(find "$SKILLS_SRC" -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | sed '/^ship-until-done$/d' | sed "s/^/${PLUGIN}:/" | sort)"
   loaded="$(codex debug prompt-input "hi" 2>/dev/null | grep -oE "${PLUGIN}:[a-z0-9-]+" | sort -u)"
   if [[ "$loaded" != "$expected" ]]; then
-    echo "check_codex_plugin.sh: the skills Codex loads do not match ${SKILLS_SRC}" >&2
+    echo "check_codex_plugin.sh: the implicitly available skills do not match ${SKILLS_SRC}" >&2
     diff <(echo "$expected") <(echo "$loaded") >&2 || true
     exit 1
   fi
-  echo "Codex installs ${PLUGIN_DIR} and loads each skill:"
+  local prompt rendered
+  for prompt in 'Implement this issue and open a PR.' 'Explain the ship-until-done skill.'; do
+    rendered="$(codex debug prompt-input "$prompt" 2>/dev/null)"
+    if grep -q 'tao:ship-until-done' <<<"$rendered"; then
+      echo "check_codex_plugin.sh: ship-until-done is implicitly available" >&2
+      exit 1
+    fi
+  done
+  echo "Codex installs ${PLUGIN_DIR}; ship-until-done stays out of implicit context:"
   echo "$loaded"
 }
 

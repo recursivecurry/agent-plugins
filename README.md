@@ -12,6 +12,7 @@ format. Each skill is a directory under `skills/` with a `SKILL.md`.
 | [`minimal-code`](skills/minimal-code) | Write the smallest correct, readable, tested change — KISS, YAGNI, DRY, explicit errors, TDD. |
 | [`git-hygiene`](skills/git-hygiene) | Keep Git history easy to review during development and meaningful after merge. |
 | [`natural-clear-writing`](skills/natural-clear-writing) | Write or edit prose without formulaic AI phrasing, with extra rules for Korean. |
+| [`ship-until-done`](skills/ship-until-done) | On explicit slash invocation, complete a task list through independent cross-model review, approval, and merge; requires a compatible host integration. |
 
 ## Install
 
@@ -25,7 +26,8 @@ skill above. Inside Claude Code:
 /plugin install tao@tao-of-agent
 ```
 
-Plugin skills are namespaced: `tao:minimal-code`, `tao:git-hygiene`, `tao:natural-clear-writing`.
+Plugin skills are namespaced: `tao:minimal-code`, `tao:git-hygiene`, `tao:natural-clear-writing`,
+`tao:ship-until-done`.
 
 ### As a Codex plugin
 
@@ -64,10 +66,12 @@ Or pick one:
 npx skills add recursivecurry/tao-of-agent --skill minimal-code
 npx skills add recursivecurry/tao-of-agent --skill git-hygiene
 npx skills add recursivecurry/tao-of-agent --skill natural-clear-writing
+npx skills add recursivecurry/tao-of-agent --skill ship-until-done
 ```
 
 Add `-g` to install globally, or `-a claude-code` to target a specific agent. Skills installed
-this way keep their plain names (`minimal-code`, `git-hygiene`, `natural-clear-writing`).
+this way keep their plain names (`minimal-code`, `git-hygiene`, `natural-clear-writing`,
+`ship-until-done`).
 
 ### Manually
 
@@ -76,7 +80,31 @@ For Claude Code, copy any skill directory, with its `references/` subdirectory i
 ```bash
 cp -r skills/minimal-code ~/.claude/skills/
 cp -r skills/natural-clear-writing ~/.claude/skills/
+cp -r skills/ship-until-done ~/.claude/skills/
 ```
+
+## Running `ship-until-done`
+
+The command is `/ship-until-done <task list or source>`, or
+`/tao:ship-until-done <task list or source>` in Claude Code's plugin. It never starts from
+an ordinary development request or a mention of its name. Invocation authorizes continuing
+through every supplied item, including PR creation, review, fixes, approval, and merge,
+subject to repository rules and actual permission gates.
+
+The files ship in all three distributions, but execution needs host capabilities:
+
+| Target | Invocation protection | Execution requirements |
+| --- | --- | --- |
+| Claude Code | Native `disable-model-invocation: true` | An external integration providing the Astra/Sol model pair and isolated review contexts; native Claude subagents cannot supply that pair |
+| Codex plugin | Native `policy.allow_implicit_invocation: false` | A verified integration for the specified slash command; native `$` mentions and `/skills` selection do not satisfy it |
+| Generic | Claude's opt-out field is included; other hosts need their own native control | A host that enforces slash-only invocation and exposes the required models and context isolation |
+
+No slash adapter is included. Unsupported hosts leave the workflow inactive and report the
+missing capability. Every execution also requires a distinct GitHub reviewer account eligible
+to approve the PR; another model alone does not supply another account. Read the
+[platform support and setup](src/skills/ship-until-done/references/platforms.md) before enabling
+it. Generic Codex installations must also configure its native implicit-invocation opt-out.
+The skill and references are in English. No session hook starts this workflow.
 
 ## What the plugins add
 

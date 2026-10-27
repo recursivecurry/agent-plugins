@@ -12,6 +12,7 @@
 | [`minimal-code`](skills/minimal-code) | 정확하고 읽기 쉬우며 테스트된 변경을 가장 작게 만듭니다. KISS, YAGNI, DRY, 명시적인 오류 처리, TDD를 따릅니다. |
 | [`git-hygiene`](skills/git-hygiene) | 개발 중에는 리뷰하기 쉽고 병합 후에는 의미가 남는 Git 이력을 유지합니다. |
 | [`natural-clear-writing`](skills/natural-clear-writing) | 상투적인 AI 문체 없이 글을 쓰거나 고칩니다. 한국어에는 추가 규칙을 적용합니다. |
+| [`ship-until-done`](skills/ship-until-done) | 명시적인 슬래시 명령으로 작업 목록을 독립적인 교차 모델 리뷰·승인·머지까지 완수합니다. 호환되는 호스트 연동이 필요합니다. |
 
 ## 설치
 
@@ -26,7 +27,7 @@ Claude Code 안에서 다음을 실행합니다.
 ```
 
 플러그인의 스킬에는 네임스페이스가 붙습니다: `tao:minimal-code`, `tao:git-hygiene`,
-`tao:natural-clear-writing`.
+`tao:natural-clear-writing`, `tao:ship-until-done`.
 
 ### Codex 플러그인으로 설치
 
@@ -65,10 +66,11 @@ npx skills add recursivecurry/tao-of-agent
 npx skills add recursivecurry/tao-of-agent --skill minimal-code
 npx skills add recursivecurry/tao-of-agent --skill git-hygiene
 npx skills add recursivecurry/tao-of-agent --skill natural-clear-writing
+npx skills add recursivecurry/tao-of-agent --skill ship-until-done
 ```
 
 전역으로 설치하려면 `-g`를, 특정 에이전트를 지정하려면 `-a claude-code`를 붙입니다. 이렇게
-설치한 스킬은 접두사 없는 이름(`minimal-code`, `git-hygiene`, `natural-clear-writing`)을
+설치한 스킬은 접두사 없는 이름(`minimal-code`, `git-hygiene`, `natural-clear-writing`, `ship-until-done`)을
 그대로 씁니다.
 
 ### 수동 설치
@@ -79,7 +81,30 @@ Claude Code에서는 스킬 디렉터리를 복사합니다. `references/` 하�
 ```bash
 cp -r skills/minimal-code ~/.claude/skills/
 cp -r skills/natural-clear-writing ~/.claude/skills/
+cp -r skills/ship-until-done ~/.claude/skills/
 ```
+
+## `ship-until-done` 실행하기
+
+명령은 `/ship-until-done <작업 목록 또는 출처>`이며, Claude Code 플러그인에서는
+`/tao:ship-until-done <작업 목록 또는 출처>`로 실행합니다. 일반적인 개발 요청이나 스킬 이름의
+언급만으로는 시작하지 않습니다. 실행하면 저장소 규칙과 실제 권한 제한을 지키면서 주어진 모든
+항목의 PR 생성, 리뷰, 수정, 승인, 머지까지 이어서 진행합니다.
+
+파일은 세 배포판 모두에 포함되지만, 실행하려면 호스트가 필요한 기능을 제공해야 합니다.
+
+| 대상 | 자동 실행 방지 | 실행에 필요한 기능 |
+| --- | --- | --- |
+| Claude Code | 기본 설정인 `disable-model-invocation: true`를 적용합니다. | Astra/Sol 모델 쌍과 독립된 리뷰 컨텍스트를 제공하는 외부 연동이 필요합니다. 기본 Claude 서브 에이전트는 이 모델 쌍을 제공하지 않습니다. |
+| Codex 플러그인 | 기본 설정인 `policy.allow_implicit_invocation: false`를 적용합니다. | 지정된 슬래시 명령을 검증할 수 있는 연동이 필요합니다. 기본 `$` 호출과 `/skills` 선택은 이 조건을 충족하지 않습니다. |
+| Generic | Claude의 자동 호출 차단 필드를 포함합니다. 다른 호스트에는 해당 호스트의 기본 차단 설정이 필요합니다. | 슬래시 명령으로만 실행하도록 제한하고, 필요한 모델과 독립 컨텍스트를 제공하는 호스트가 필요합니다. |
+
+슬래시 명령 어댑터는 포함하지 않습니다. 지원하지 않는 호스트에서는 워크플로를 실행하지 않고
+부족한 기능을 알립니다. 실행하려면 PR 작성자와 별개로 유효한 승인을 제출할 수 있는 GitHub
+리뷰어 계정도 필요합니다. 모델을 바꾸는 것만으로 계정이 바뀌지는 않습니다. 사용하기 전에
+[플랫폼 지원 및 설정 안내](src/skills/ship-until-done/references/platforms.md)를 읽으세요.
+Generic 스킬을 Codex에 설치했다면 Codex의 기본 자동 호출 차단 설정도 적용해야 합니다.
+스킬과 참조 문서는 영어로 작성되어 있습니다. 세션 hook은 이 워크플로를 시작하지 않습니다.
 
 ## 플러그인이 추가하는 것
 
