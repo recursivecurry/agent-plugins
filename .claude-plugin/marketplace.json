@@ -1,5 +1,5 @@
 {
-  "name": "agent-skills",
+  "name": "agent-plugins",
   "description": "Skills for disciplined agent coding.",
   "owner": {
     "name": "recursivecurry"

@@ -8,7 +8,7 @@ set -euo pipefail
 
 readonly SKILLS_SRC="src/skills"
 readonly PLUGIN_DIR="plugins/codex/curry"
-readonly MARKETPLACE="agent-skills"
+readonly MARKETPLACE="agent-plugins"
 readonly PLUGIN="curry"
 
 codex_home=""

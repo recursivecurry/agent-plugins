@@ -1,11 +1,11 @@
 {
   "name": "curry",
   "description": "Skills for disciplined agent work: minimal code, clean Git history, natural writing.",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "author": {
     "name": "recursivecurry"
   },
-  "repository": "https://github.com/recursivecurry/agent-skills",
+  "repository": "https://github.com/recursivecurry/agent-plugins",
   "license": "MIT",
   "skills": "./skills/",
   "interface": {

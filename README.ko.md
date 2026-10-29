@@ -1,4 +1,4 @@
-# agent-skills
+# agent-plugins
 
 [English](README.md)
 
@@ -22,8 +22,8 @@
 Claude Code 안에서 다음을 실행합니다.
 
 ```text
-/plugin marketplace add recursivecurry/agent-skills
-/plugin install curry@agent-skills
+/plugin marketplace add recursivecurry/agent-plugins
+/plugin install curry@agent-plugins
 ```
 
 플러그인의 스킬에는 네임스페이스가 붙습니다: `curry:minimal-code`, `curry:git-hygiene`,
@@ -34,8 +34,8 @@ Claude Code 안에서 다음을 실행합니다.
 이 저장소는 Codex 마켓플레이스이기도 하며, Codex에 맞춰 만든 별도의 `curry` 플러그인을 제공합니다.
 
 ```bash
-codex plugin marketplace add recursivecurry/agent-skills
-codex plugin add curry@agent-skills
+codex plugin marketplace add recursivecurry/agent-plugins
+codex plugin add curry@agent-plugins
 ```
 
 플러그인에는 hook이 들어 있고, Codex는 사용자가 승인한 뒤에만 플러그인의 hook을 실행합니다.
@@ -45,14 +45,14 @@ codex plugin add curry@agent-skills
 나중에 업데이트하려면 다음을 실행합니다.
 
 ```bash
-codex plugin marketplace upgrade agent-skills
-codex plugin add curry@agent-skills
+codex plugin marketplace upgrade agent-plugins
+codex plugin add curry@agent-plugins
 ```
 
 ### 기존 `tao` 설치에서 이전
 
 `tao@tao-of-agent`를 설치했다면 에이전트에서 해당 플러그인과 `tao-of-agent` 마켓플레이스를
-제거하세요. 그런 다음 위의 설치 명령으로 `curry@agent-skills`를 추가하고 에이전트를 다시
+제거하세요. 그런 다음 위의 설치 명령으로 `curry@agent-plugins`를 추가하고 에이전트를 다시
 시작하세요. 저장해 둔 `tao:<skill>` 참조도 `curry:<skill>`로 바꾸세요.
 
 ### skills CLI로 설치
@@ -63,16 +63,16 @@ codex plugin add curry@agent-skills
 고르세요. 저장소의 모든 스킬을 설치하려면 다음을 실행합니다.
 
 ```bash
-npx skills add recursivecurry/agent-skills
+npx skills add recursivecurry/agent-plugins
 ```
 
 하나만 골라 설치할 수도 있습니다.
 
 ```bash
-npx skills add recursivecurry/agent-skills --skill minimal-code
-npx skills add recursivecurry/agent-skills --skill git-hygiene
-npx skills add recursivecurry/agent-skills --skill natural-clear-writing
-npx skills add recursivecurry/agent-skills --skill ship-until-done
+npx skills add recursivecurry/agent-plugins --skill minimal-code
+npx skills add recursivecurry/agent-plugins --skill git-hygiene
+npx skills add recursivecurry/agent-plugins --skill natural-clear-writing
+npx skills add recursivecurry/agent-plugins --skill ship-until-done
 ```
 
 전역으로 설치하려면 `-g`를, 특정 에이전트를 지정하려면 `-a claude-code`를 붙입니다. 이렇게
