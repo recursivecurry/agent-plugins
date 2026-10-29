@@ -13,7 +13,7 @@ metadata:
 # Ship until done
 
 Start only on direct developer slash invocation, never quoted commands or incidental mentions.
-Plugin command: `/tao:ship-until-done`. Review pair: Fable ↔ Opus.
+Plugin command: `/curry:ship-until-done`. Review pair: Fable ↔ Opus.
 
 Load references at their stage; do not preload later stages:
 

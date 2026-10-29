@@ -38,33 +38,31 @@ done, the workflow fails with a message that points to this file.
    Leave `skills-cli` and `codex-cli` optional. They read the text output of the skills CLI
    and the Codex CLI, which may change between CLI versions.
 
-## First release
+## Verify installation after the rename
 
-1. Merge the pull request that introduces `src/` and `plugins/`. Its generated files are
-   already current, so the build workflow opens no pull request.
-2. On a machine that has `tao@tao-of-agent` installed from before the move, run:
+1. If `tao@tao-of-agent` is installed, uninstall the old plugin and remove the old
+   marketplace before installing `curry@agent-skills`. See the README's migration section.
+2. Install the Claude Code plugin from GitHub:
 
    ```bash
-   claude plugin marketplace update tao-of-agent
-   claude plugin update tao@tao-of-agent
+   claude plugin marketplace add recursivecurry/agent-skills
+   claude plugin install curry@agent-skills
    ```
 
-   The plugin should update from 0.1.0 to 0.2.0 and, after a restart, still provide
-   `tao:minimal-code`, `tao:git-hygiene`, and `tao:natural-clear-writing`. This path was
-   tested against a local marketplace only, so check it once against GitHub.
+   After a restart, verify that `curry:minimal-code`, `curry:git-hygiene`, and
+   `curry:natural-clear-writing` are available.
 3. Install the Codex plugin from GitHub:
 
    ```bash
-   codex plugin marketplace add recursivecurry/tao-of-agent
-   codex plugin add tao@tao-of-agent
+   codex plugin marketplace add recursivecurry/agent-skills
+   codex plugin add curry@agent-skills
    ```
 
    Start a Codex session, approve the hook on the review screen, and ask which skill it was
-   told to follow when changing code. The answer should name `tao:minimal-code`. Codex was
-   tested against a local marketplace and against another repository, not this one.
+   told to follow when changing code. The answer should name `curry:minimal-code`.
 4. At the next release, check how a Codex install picks up the new version: run
-   `codex plugin marketplace upgrade tao-of-agent`, start a session, and see whether
-   `codex plugin list` shows the new version. If it does not, `codex plugin add tao@tao-of-agent`
+   `codex plugin marketplace upgrade agent-skills`, start a session, and see whether
+   `codex plugin list` shows the new version. If it does not, `codex plugin add curry@agent-skills`
    is needed as well, which is what the README tells users to run.
 
 ## Each release after that

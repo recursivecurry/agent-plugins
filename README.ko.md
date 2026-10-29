@@ -1,4 +1,4 @@
-# tao-of-agent
+# agent-skills
 
 [English](README.md)
 
@@ -18,24 +18,24 @@
 
 ### Claude Code 플러그인으로 설치
 
-이 저장소는 플러그인 마켓플레이스이며, 위의 모든 스킬을 담은 플러그인 `tao` 하나를 제공합니다.
+이 저장소는 플러그인 마켓플레이스이며, 위의 모든 스킬을 담은 플러그인 `curry` 하나를 제공합니다.
 Claude Code 안에서 다음을 실행합니다.
 
 ```text
-/plugin marketplace add recursivecurry/tao-of-agent
-/plugin install tao@tao-of-agent
+/plugin marketplace add recursivecurry/agent-skills
+/plugin install curry@agent-skills
 ```
 
-플러그인의 스킬에는 네임스페이스가 붙습니다: `tao:minimal-code`, `tao:git-hygiene`,
-`tao:natural-clear-writing`, `tao:ship-until-done`.
+플러그인의 스킬에는 네임스페이스가 붙습니다: `curry:minimal-code`, `curry:git-hygiene`,
+`curry:natural-clear-writing`, `curry:ship-until-done`.
 
 ### Codex 플러그인으로 설치
 
-이 저장소는 Codex 마켓플레이스이기도 하며, Codex에 맞춰 만든 별도의 `tao` 플러그인을 제공합니다.
+이 저장소는 Codex 마켓플레이스이기도 하며, Codex에 맞춰 만든 별도의 `curry` 플러그인을 제공합니다.
 
 ```bash
-codex plugin marketplace add recursivecurry/tao-of-agent
-codex plugin add tao@tao-of-agent
+codex plugin marketplace add recursivecurry/agent-skills
+codex plugin add curry@agent-skills
 ```
 
 플러그인에는 hook이 들어 있고, Codex는 사용자가 승인한 뒤에만 플러그인의 hook을 실행합니다.
@@ -45,28 +45,34 @@ codex plugin add tao@tao-of-agent
 나중에 업데이트하려면 다음을 실행합니다.
 
 ```bash
-codex plugin marketplace upgrade tao-of-agent
-codex plugin add tao@tao-of-agent
+codex plugin marketplace upgrade agent-skills
+codex plugin add curry@agent-skills
 ```
+
+### 기존 `tao` 설치에서 이전
+
+`tao@tao-of-agent`를 설치했다면 에이전트에서 해당 플러그인과 `tao-of-agent` 마켓플레이스를
+제거하세요. 그런 다음 위의 설치 명령으로 `curry@agent-skills`를 추가하고 에이전트를 다시
+시작하세요. 저장해 둔 `tao:<skill>` 참조도 `curry:<skill>`로 바꾸세요.
 
 ### skills CLI로 설치
 
 [skills CLI](https://vercel.com/docs/agent-resources/skills)는 지원하는 모든 에이전트에 스킬을
 설치합니다. 위에 플러그인이 없는 에이전트에 사용하세요. 한 에이전트에 플러그인과 이 스킬을
-함께 설치하면 모든 스킬이 `tao:minimal-code`와 `minimal-code`로 두 번 로드되므로 둘 중 하나만
+함께 설치하면 모든 스킬이 `curry:minimal-code`와 `minimal-code`로 두 번 로드되므로 둘 중 하나만
 고르세요. 저장소의 모든 스킬을 설치하려면 다음을 실행합니다.
 
 ```bash
-npx skills add recursivecurry/tao-of-agent
+npx skills add recursivecurry/agent-skills
 ```
 
 하나만 골라 설치할 수도 있습니다.
 
 ```bash
-npx skills add recursivecurry/tao-of-agent --skill minimal-code
-npx skills add recursivecurry/tao-of-agent --skill git-hygiene
-npx skills add recursivecurry/tao-of-agent --skill natural-clear-writing
-npx skills add recursivecurry/tao-of-agent --skill ship-until-done
+npx skills add recursivecurry/agent-skills --skill minimal-code
+npx skills add recursivecurry/agent-skills --skill git-hygiene
+npx skills add recursivecurry/agent-skills --skill natural-clear-writing
+npx skills add recursivecurry/agent-skills --skill ship-until-done
 ```
 
 전역으로 설치하려면 `-g`를, 특정 에이전트를 지정하려면 `-a claude-code`를 붙입니다. 이렇게
@@ -87,7 +93,7 @@ cp -r skills/ship-until-done ~/.claude/skills/
 ## `ship-until-done` 실행하기
 
 명령은 `/ship-until-done <작업 목록 또는 출처>`이며, Claude Code 플러그인에서는
-`/tao:ship-until-done <작업 목록 또는 출처>`로 실행합니다. 일반적인 개발 요청이나 스킬 이름의
+`/curry:ship-until-done <작업 목록 또는 출처>`로 실행합니다. 일반적인 개발 요청이나 스킬 이름의
 언급만으로는 시작하지 않습니다. 실행하면 저장소 규칙과 실제 권한 제한을 지키면서 주어진 모든
 항목의 PR 생성, 리뷰, 수정, 승인, 머지까지 이어서 진행합니다.
 
@@ -114,7 +120,7 @@ Generic 스킬을 Codex에 설치했다면 Codex의 기본 자동 호출 차단 
 ## 플러그인이 추가하는 것
 
 두 플러그인은 세션을 시작할 때마다 hook을 실행해 짧은 지침 두 가지를 넣습니다. 하나는 코드를
-바꿀 때 `tao:minimal-code`를 따르고 완료를 보고하기 전에 그 스킬의 완료 체크리스트를 점검하라는
+바꿀 때 `curry:minimal-code`를 따르고 완료를 보고하기 전에 그 스킬의 완료 체크리스트를 점검하라는
 지침이고, 다른 하나는 일반 답변에서 상투적인 표현을 쓰지 말라는 지침입니다. 아래 두 절은 그
 이유를 설명하고, 플러그인 없이 스킬만 설치한 경우 직접 붙여 넣을 같은 문구를 제공합니다.
 
@@ -176,7 +182,7 @@ tools/eval.sh --judge-model sonnet
 실행하며 `allowed_tools: []`를 준수하는지 확인해야 합니다.
 
 `claude plugin eval`은 플러그인 디렉터리 안의 케이스만 읽는데, 평가 케이스는 플러그인에
-포함되어 배포되지 않습니다. 그래서 이 스크립트는 출력을 다시 빌드하고 `plugins/claude/tao/`와
+포함되어 배포되지 않습니다. 그래서 이 스크립트는 출력을 다시 빌드하고 `plugins/claude/curry/`와
 `evals/`를 임시 디렉터리에 복사한 뒤 거기서 평가를 실행합니다. 추가 인자는 그대로 전달됩니다.
 저장소 루트에서 `claude plugin eval .`을 실행하지 마세요. 케이스는 찾지만 플러그인을 로드하지
 않습니다.
@@ -190,8 +196,8 @@ src/claude/                        Claude Code 매니페스트와 Claude 전용 
 src/codex/                         Codex 매니페스트와 Codex 전용 파일
 tools/build.py                     아래의 모든 것을 생성합니다
 skills/                            생성됨, skills CLI가 읽습니다
-plugins/claude/tao/                생성됨, Claude Code 플러그인
-plugins/codex/tao/                 생성됨, Codex 플러그인
+plugins/claude/curry/              생성됨, Claude Code 플러그인
+plugins/codex/curry/               생성됨, Codex 플러그인
 .claude-plugin/marketplace.json    생성됨, Claude Code 마켓플레이스
 .agents/plugins/marketplace.json   생성됨, Codex 마켓플레이스
 evals/                             평가 케이스, 배포되지 않습니다

@@ -1,4 +1,4 @@
-# tao-of-agent
+# agent-skills
 
 [한국어](README.ko.md)
 
@@ -18,24 +18,24 @@ format. Each skill is a directory under `skills/` with a `SKILL.md`.
 
 ### As a Claude Code plugin
 
-The repository is a plugin marketplace that ships one plugin, `tao`, containing every
+The repository is a plugin marketplace that ships one plugin, `curry`, containing every
 skill above. Inside Claude Code:
 
 ```text
-/plugin marketplace add recursivecurry/tao-of-agent
-/plugin install tao@tao-of-agent
+/plugin marketplace add recursivecurry/agent-skills
+/plugin install curry@agent-skills
 ```
 
-Plugin skills are namespaced: `tao:minimal-code`, `tao:git-hygiene`, `tao:natural-clear-writing`,
-`tao:ship-until-done`.
+Plugin skills are namespaced: `curry:minimal-code`, `curry:git-hygiene`, `curry:natural-clear-writing`,
+`curry:ship-until-done`.
 
 ### As a Codex plugin
 
-The repository is also a Codex marketplace with its own `tao` plugin, built for Codex:
+The repository is also a Codex marketplace with its own `curry` plugin, built for Codex:
 
 ```bash
-codex plugin marketplace add recursivecurry/tao-of-agent
-codex plugin add tao@tao-of-agent
+codex plugin marketplace add recursivecurry/agent-skills
+codex plugin add curry@agent-skills
 ```
 
 The plugin includes a hook, and Codex runs a plugin's hooks only after you approve them. It
@@ -45,28 +45,34 @@ approval. The hook does not.
 To update later:
 
 ```bash
-codex plugin marketplace upgrade tao-of-agent
-codex plugin add tao@tao-of-agent
+codex plugin marketplace upgrade agent-skills
+codex plugin add curry@agent-skills
 ```
+
+### Migrating from `tao`
+
+If you installed `tao@tao-of-agent`, uninstall that plugin and remove the `tao-of-agent`
+marketplace in your agent. Then use the install commands above to add `curry@agent-skills`
+and restart the agent. Update any saved `tao:<skill>` references to `curry:<skill>`.
 
 ### With the skills CLI
 
 The [skills CLI](https://vercel.com/docs/agent-resources/skills) installs skills into any
 supported agent. Use it for agents that have no plugin above. Installing both a plugin and
-these skills into the same agent loads every skill twice, once as `tao:minimal-code` and once
+these skills into the same agent loads every skill twice, once as `curry:minimal-code` and once
 as `minimal-code`, so pick one. Install every skill in the repository:
 
 ```bash
-npx skills add recursivecurry/tao-of-agent
+npx skills add recursivecurry/agent-skills
 ```
 
 Or pick one:
 
 ```bash
-npx skills add recursivecurry/tao-of-agent --skill minimal-code
-npx skills add recursivecurry/tao-of-agent --skill git-hygiene
-npx skills add recursivecurry/tao-of-agent --skill natural-clear-writing
-npx skills add recursivecurry/tao-of-agent --skill ship-until-done
+npx skills add recursivecurry/agent-skills --skill minimal-code
+npx skills add recursivecurry/agent-skills --skill git-hygiene
+npx skills add recursivecurry/agent-skills --skill natural-clear-writing
+npx skills add recursivecurry/agent-skills --skill ship-until-done
 ```
 
 Add `-g` to install globally, or `-a claude-code` to target a specific agent. Skills installed
@@ -86,7 +92,7 @@ cp -r skills/ship-until-done ~/.claude/skills/
 ## Running `ship-until-done`
 
 The command is `/ship-until-done <task list or source>`, or
-`/tao:ship-until-done <task list or source>` in Claude Code's plugin. It never starts from
+`/curry:ship-until-done <task list or source>` in Claude Code's plugin. It never starts from
 an ordinary development request or a mention of its name. Invocation authorizes continuing
 through every supplied item, including PR creation, review, fixes, approval, and merge,
 subject to repository rules and actual permission gates.
@@ -114,7 +120,7 @@ No session hook starts this workflow.
 ## What the plugins add
 
 Both plugins run a hook at the start of every session that adds two short instructions: follow
-`tao:minimal-code` when changing code and work through its done checklist before reporting
+`curry:minimal-code` when changing code and work through its done checklist before reporting
 done, and keep ordinary replies free of formulaic phrasing. The two sections below explain
 why, and give the same text to paste by hand if you installed the skills without a plugin.
 
@@ -194,7 +200,7 @@ that the runner executes the SessionStart hook and honors `allowed_tools: []` be
 conclusions about the hook.
 
 `claude plugin eval` reads cases only from inside the plugin directory, and the cases are not
-shipped with the plugin. The script rebuilds the outputs, copies `plugins/claude/tao/` and
+shipped with the plugin. The script rebuilds the outputs, copies `plugins/claude/curry/` and
 `evals/` into a temporary directory, and runs the eval there. Extra arguments are passed through. Do
 not run `claude plugin eval .` at the repository root: it finds the cases but loads no plugin.
 
@@ -207,8 +213,8 @@ src/claude/                        Claude Code manifests and Claude-only files
 src/codex/                         Codex manifests and Codex-only files
 tools/build.py                     generates everything below
 skills/                            generated, read by the skills CLI
-plugins/claude/tao/                generated, the Claude Code plugin
-plugins/codex/tao/                 generated, the Codex plugin
+plugins/claude/curry/              generated, the Claude Code plugin
+plugins/codex/curry/               generated, the Codex plugin
 .claude-plugin/marketplace.json    generated, the Claude Code marketplace
 .agents/plugins/marketplace.json   generated, the Codex marketplace
 evals/                             eval cases, not shipped

@@ -1,14 +1,14 @@
 {
-  "name": "tao-of-agent",
+  "name": "agent-skills",
   "interface": {
-    "displayName": "Tao of Agent"
+    "displayName": "Agent Skills"
   },
   "plugins": [
     {
-      "name": "tao",
+      "name": "curry",
       "source": {
         "source": "local",
-        "path": "./plugins/codex/tao"
+        "path": "./plugins/codex/curry"
       },
       "policy": {
         "installation": "AVAILABLE",

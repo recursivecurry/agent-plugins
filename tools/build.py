@@ -41,20 +41,20 @@ class Plugin:
 CLAUDE = Plugin(
     target="claude",
     source="src/claude",
-    root="plugins/claude/tao",
-    manifest="plugins/claude/tao/.claude-plugin/plugin.json",
+    root="plugins/claude/curry",
+    manifest="plugins/claude/curry/.claude-plugin/plugin.json",
     marketplace=".claude-plugin/marketplace.json",
-    marketplace_source="./plugins/claude/tao",
+    marketplace_source="./plugins/claude/curry",
     legacy_manifests=(".claude-plugin/plugin.json",),
     forbidden=("${PLUGIN_ROOT}", "CODEX_", ".codex"),
 )
 CODEX = Plugin(
     target="codex",
     source="src/codex",
-    root="plugins/codex/tao",
-    manifest="plugins/codex/tao/.codex-plugin/plugin.json",
+    root="plugins/codex/curry",
+    manifest="plugins/codex/curry/.codex-plugin/plugin.json",
     marketplace=".agents/plugins/marketplace.json",
-    marketplace_source={"source": "local", "path": "./plugins/codex/tao"},
+    marketplace_source={"source": "local", "path": "./plugins/codex/curry"},
     legacy_manifests=(),
     forbidden=("CLAUDE_", ".claude"),
 )
@@ -88,9 +88,9 @@ SKILL_NAME = re.compile(r"[a-z0-9]+(-[a-z0-9]+)*")
 VERSION = re.compile(r"\d+\.\d+\.\d+")
 
 FORBIDDEN_IN_SKILLS = ("](../", "](/", ".claude/", ".agents/", ".codex/", "~/.")
-# A skill is `tao:<name>` only in a plugin, and each agent reads its own
+# A skill is `curry:<name>` only in a plugin, and each agent reads its own
 # instruction file, so these belong in a target block.
-AGENT_SPECIFIC_IN_SKILLS = ("tao:", "CLAUDE.md", "AGENTS.md")
+AGENT_SPECIFIC_IN_SKILLS = ("curry:", "CLAUDE.md", "AGENTS.md")
 ESCAPING_LINK_PREFIXES = ("/", "../")
 EXTERNAL_LINK_PREFIXES = ("#", "mailto:")
 
