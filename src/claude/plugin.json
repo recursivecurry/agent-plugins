@@ -1,10 +1,10 @@
 {
-  "name": "tao",
+  "name": "curry",
   "description": "Skills for disciplined agent work: minimal code, clean Git history, natural writing.",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "author": {
     "name": "recursivecurry"
   },
-  "repository": "https://github.com/recursivecurry/tao-of-agent",
+  "repository": "https://github.com/recursivecurry/agent-skills",
   "license": "MIT"
 }

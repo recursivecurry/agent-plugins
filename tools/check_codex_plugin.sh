@@ -7,9 +7,9 @@
 set -euo pipefail
 
 readonly SKILLS_SRC="src/skills"
-readonly PLUGIN_DIR="plugins/codex/tao"
-readonly MARKETPLACE="tao-of-agent"
-readonly PLUGIN="tao"
+readonly PLUGIN_DIR="plugins/codex/curry"
+readonly MARKETPLACE="agent-skills"
+readonly PLUGIN="curry"
 
 codex_home=""
 
@@ -52,7 +52,7 @@ main() {
   local prompt rendered
   for prompt in 'Implement this issue and open a PR.' 'Explain the ship-until-done skill.'; do
     rendered="$(codex debug prompt-input "$prompt" 2>/dev/null)"
-    if grep -q 'tao:ship-until-done' <<<"$rendered"; then
+    if grep -q 'curry:ship-until-done' <<<"$rendered"; then
       echo "check_codex_plugin.sh: ship-until-done is implicitly available" >&2
       exit 1
     fi

@@ -4,7 +4,7 @@ Installation does not establish that a host can run the workflow. Check the inst
 host's controls and exposed tool schemas before changing code or creating a PR.
 
 Claude Code uses `disable-model-invocation: true`. The plugin command is
-`/tao:ship-until-done`; a standalone installation uses `/ship-until-done`.
+`/curry:ship-until-done`; a standalone installation uses `/ship-until-done`.
 Verify a direct developer invocation, rather than a quoted token, ordinary request or
 model-selected load. Use native independent subagents if they expose both required models
 and disable conversation inheritance; otherwise require a verified integration.

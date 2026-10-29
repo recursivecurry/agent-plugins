@@ -9,7 +9,7 @@
 #   tools/eval.sh --judge-model sonnet
 set -euo pipefail
 
-readonly PLUGIN_DIR="plugins/claude/tao"
+readonly PLUGIN_DIR="plugins/claude/curry"
 readonly EVALS_DIR="evals"
 readonly RESULTS_DIR="${EVALS_DIR}/results"
 

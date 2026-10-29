@@ -28,7 +28,7 @@ A skill's text reaches all three outputs, so write it for any agent.
 - Do not assume an agent's tools, commands, or files. Put anything agent-specific inside a
   target block (`claude`, `codex`, or `generic`).
 - Refer to another skill in this repository by its plain name, such as "the minimal-code
-  skill". It is `tao:minimal-code` only inside a plugin.
+  skill". It is `curry:minimal-code` only inside a plugin.
 - The generic output has no hook. A skill must do its job from its own text.
 - Write the `description` for triggering: what the skill does, when to use it, and when not
   to. Agents read only the description until they load the skill.
