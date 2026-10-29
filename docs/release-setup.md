@@ -41,12 +41,12 @@ done, the workflow fails with a message that points to this file.
 ## Verify installation after the rename
 
 1. If `tao@tao-of-agent` is installed, uninstall the old plugin and remove the old
-   marketplace before installing `curry@agent-skills`. See the README's migration section.
+   marketplace before installing `curry@agent-plugins`. See the README's migration section.
 2. Install the Claude Code plugin from GitHub:
 
    ```bash
-   claude plugin marketplace add recursivecurry/agent-skills
-   claude plugin install curry@agent-skills
+   claude plugin marketplace add recursivecurry/agent-plugins
+   claude plugin install curry@agent-plugins
    ```
 
    After a restart, verify that `curry:minimal-code`, `curry:git-hygiene`, and
@@ -54,15 +54,15 @@ done, the workflow fails with a message that points to this file.
 3. Install the Codex plugin from GitHub:
 
    ```bash
-   codex plugin marketplace add recursivecurry/agent-skills
-   codex plugin add curry@agent-skills
+   codex plugin marketplace add recursivecurry/agent-plugins
+   codex plugin add curry@agent-plugins
    ```
 
    Start a Codex session, approve the hook on the review screen, and ask which skill it was
    told to follow when changing code. The answer should name `curry:minimal-code`.
 4. At the next release, check how a Codex install picks up the new version: run
-   `codex plugin marketplace upgrade agent-skills`, start a session, and see whether
-   `codex plugin list` shows the new version. If it does not, `codex plugin add curry@agent-skills`
+   `codex plugin marketplace upgrade agent-plugins`, start a session, and see whether
+   `codex plugin list` shows the new version. If it does not, `codex plugin add curry@agent-plugins`
    is needed as well, which is what the README tells users to run.
 
 ## Each release after that

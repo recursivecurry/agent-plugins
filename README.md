@@ -1,4 +1,4 @@
-# agent-skills
+# agent-plugins
 
 [한국어](README.ko.md)
 
@@ -22,8 +22,8 @@ The repository is a plugin marketplace that ships one plugin, `curry`, containin
 skill above. Inside Claude Code:
 
 ```text
-/plugin marketplace add recursivecurry/agent-skills
-/plugin install curry@agent-skills
+/plugin marketplace add recursivecurry/agent-plugins
+/plugin install curry@agent-plugins
 ```
 
 Plugin skills are namespaced: `curry:minimal-code`, `curry:git-hygiene`, `curry:natural-clear-writing`,
@@ -34,8 +34,8 @@ Plugin skills are namespaced: `curry:minimal-code`, `curry:git-hygiene`, `curry:
 The repository is also a Codex marketplace with its own `curry` plugin, built for Codex:
 
 ```bash
-codex plugin marketplace add recursivecurry/agent-skills
-codex plugin add curry@agent-skills
+codex plugin marketplace add recursivecurry/agent-plugins
+codex plugin add curry@agent-plugins
 ```
 
 The plugin includes a hook, and Codex runs a plugin's hooks only after you approve them. It
@@ -45,14 +45,14 @@ approval. The hook does not.
 To update later:
 
 ```bash
-codex plugin marketplace upgrade agent-skills
-codex plugin add curry@agent-skills
+codex plugin marketplace upgrade agent-plugins
+codex plugin add curry@agent-plugins
 ```
 
 ### Migrating from `tao`
 
 If you installed `tao@tao-of-agent`, uninstall that plugin and remove the `tao-of-agent`
-marketplace in your agent. Then use the install commands above to add `curry@agent-skills`
+marketplace in your agent. Then use the install commands above to add `curry@agent-plugins`
 and restart the agent. Update any saved `tao:<skill>` references to `curry:<skill>`.
 
 ### With the skills CLI
@@ -63,16 +63,16 @@ these skills into the same agent loads every skill twice, once as `curry:minimal
 as `minimal-code`, so pick one. Install every skill in the repository:
 
 ```bash
-npx skills add recursivecurry/agent-skills
+npx skills add recursivecurry/agent-plugins
 ```
 
 Or pick one:
 
 ```bash
-npx skills add recursivecurry/agent-skills --skill minimal-code
-npx skills add recursivecurry/agent-skills --skill git-hygiene
-npx skills add recursivecurry/agent-skills --skill natural-clear-writing
-npx skills add recursivecurry/agent-skills --skill ship-until-done
+npx skills add recursivecurry/agent-plugins --skill minimal-code
+npx skills add recursivecurry/agent-plugins --skill git-hygiene
+npx skills add recursivecurry/agent-plugins --skill natural-clear-writing
+npx skills add recursivecurry/agent-plugins --skill ship-until-done
 ```
 
 Add `-g` to install globally, or `-a claude-code` to target a specific agent. Skills installed
