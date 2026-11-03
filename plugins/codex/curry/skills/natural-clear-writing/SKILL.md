@@ -5,7 +5,7 @@ description: Write or edit human-facing prose so it is clear, natural, and free 
 license: MIT
 metadata:
   author: recursivecurry
-  version: 2.2.1
+  version: 2.3.0
 ---
 
 # Natural, clear writing
@@ -39,11 +39,15 @@ Ask only when missing information prevents a correct result.
 
 ### Focus and structure
 
-- Lead practical writing with the answer, decision, or action unless the genre or request requires another order.
-- Do not repeat context the reader already knows. Keep reasoning, examples, and caveats that affect understanding or judgment.
+Implicit by default, explicit by exception: leave out what is self-evident to the reader and state only what matters.
+
+- Assume the reader knows the subject area and the context the text was written in, unless the request or genre points to a different audience. Judge what is self-evident from that reader's point of view.
+- Lead practical writing with the answer, decision, or action unless the genre or request requires another order. Focus on what is new or changed, and on what matters most in it.
+- Omit what the reader knows or can infer: conventions, common knowledge, shared context, background, formal introductions and conclusions, and obvious advice.
+- State what the reader cannot infer: deviations from convention, meaningful differences, constraints, exceptions, and the reasoning a decision depends on. Keep examples and caveats that affect understanding or judgment.
+- Keep the text to a length the reader can take in without effort. A message, update, or summary should read like an elevator pitch. Let length follow the new information, not the material available.
+- Never cut information needed for accuracy or clarity. Omit content, not the words that connect it: use enough words to express the relationships between ideas. A shorter but ambiguous sentence is a worse sentence.
 - Give each paragraph one central point and keep related ideas together.
-- Remove empty introductions, redundant explanations, and conclusions that repeat earlier points.
-- Use enough words to express the relationships between ideas. A shorter but ambiguous sentence is a worse sentence.
 
 ### Formulaic AI patterns
 

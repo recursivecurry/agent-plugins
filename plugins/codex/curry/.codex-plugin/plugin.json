@@ -1,7 +1,7 @@
 {
   "name": "curry",
   "description": "Skills for disciplined agent work: minimal code, clean Git history, natural writing.",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "author": {
     "name": "recursivecurry"
   },
