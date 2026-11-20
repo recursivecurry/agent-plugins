@@ -74,6 +74,7 @@ class SourceTreeCase(unittest.TestCase):
         write(self.root, build.CLAUDE.source_marketplace, MARKETPLACE)
         write(self.root, build.CODEX.source_manifest, PLUGIN)
         write(self.root, build.CODEX.source_marketplace, CODEX_MARKETPLACE)
+        write(self.root, "src/hermes/plugin.yaml", '{"name": "curry"}\n')
 
     def build(self) -> str:
         code, stdout, _ = run(build.build, self.root)
@@ -106,7 +107,7 @@ class RenderTest(unittest.TestCase):
 
     def test_model_mapping_for_each_distribution(self) -> None:
         text = "{{model:GPT-Astra}} {{model:GPT-Sol}} {{model:GPT-Terra}} {{model:GPT-Luna}}\n"
-        for target in ("codex", "generic"):
+        for target in ("codex", "generic", "hermes"):
             with self.subTest(target=target):
                 self.assertEqual(self.render(text, target), "GPT-Astra GPT-Sol GPT-Terra GPT-Luna\n")
         self.assertEqual(self.render(text, "claude"), "Fable Opus Sonnet Haiku\n")
@@ -191,6 +192,9 @@ class BuildTest(SourceTreeCase):
                 "plugins/codex/curry/skills/demo/references/note.md": NOTE.encode(),
                 "plugins/codex/curry/.codex-plugin/plugin.json": PLUGIN.encode(),
                 ".agents/plugins/marketplace.json": CODEX_MARKETPLACE.encode(),
+                "plugins/hermes/curry/plugin.yaml": b'{\n  "name": "curry",\n  "version": "0.2.0"\n}\n',
+                "plugins/hermes/curry/skills/demo/SKILL.md": skill,
+                "plugins/hermes/curry/skills/demo/references/note.md": NOTE.encode(),
             },
         )
 
@@ -639,9 +643,9 @@ class SummaryTest(GitCase):
             self.summary(),
             "## Build summary\n\n"
             "Plugin version: 0.2.0 (unchanged)\n\n"
-            "| Skill | Generic | Claude | Codex |\n"
-            "|---|---|---|---|\n"
-            "| demo | — | — | — |\n\n"
+            "| Skill | Generic | Claude | Codex | Hermes |\n"
+            "|---|---|---|---|---|\n"
+            "| demo | — | — | — | — |\n\n"
             "Other changes: none\n",
         )
 
@@ -667,13 +671,13 @@ class SummaryTest(GitCase):
             self.summary(),
             "## Build summary\n\n"
             "Plugin version: 0.2.0 → 0.3.0\n\n"
-            "| Skill | Generic | Claude | Codex |\n"
-            "|---|---|---|---|\n"
-            "| added | changed | changed | changed |\n"
-            "| demo | — | changed | — |\n"
-            "| gone | changed | changed | changed |\n\n"
+            "| Skill | Generic | Claude | Codex | Hermes |\n"
+            "|---|---|---|---|---|\n"
+            "| added | changed | changed | changed | changed |\n"
+            "| demo | — | changed | — | — |\n"
+            "| gone | changed | changed | changed | changed |\n\n"
             "Other changes: plugins/claude/curry/.claude-plugin/plugin.json, "
-            "plugins/codex/curry/.codex-plugin/plugin.json\n",
+            "plugins/codex/curry/.codex-plugin/plugin.json, plugins/hermes/curry/plugin.yaml\n",
         )
 
     def test_reports_a_new_plugin_when_head_has_no_manifest(self) -> None:

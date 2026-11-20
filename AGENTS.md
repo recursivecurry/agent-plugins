@@ -1,6 +1,6 @@
 # Working in this repository
 
-One source tree under `src/` generates three outputs: a Claude Code plugin, a Codex plugin, and
+One source tree under `src/` generates four outputs: Claude Code, Codex, and Hermes plugins, and
 generic skills installed with `npx skills`. The README describes the layout.
 
 ## Where to edit
@@ -9,7 +9,7 @@ generic skills installed with `npx skills`. The README describes the layout.
   and `.agents/plugins/` are build output. Change them only by running
   `python3 tools/build.py build`.
 - A skill lives in `src/skills/<name>/`. Files that both plugins need go in `src/plugin/`.
-  Files for one agent go in `src/claude/` or `src/codex/`.
+  Files for one agent go in `src/claude/`, `src/codex/`, or `src/hermes/`.
 - `README.ko.md` is the Korean translation of `README.md`. Change both together.
 
 ## Running the skills CLI here
@@ -23,10 +23,10 @@ generic skills installed with `npx skills`. The README describes the layout.
 
 ## Writing a skill
 
-A skill's text reaches all three outputs, so write it for any agent.
+A skill's text reaches all four outputs, so write it for any agent.
 
 - Do not assume an agent's tools, commands, or files. Put anything agent-specific inside a
-  target block (`claude`, `codex`, or `generic`).
+  target block (`claude`, `codex`, `hermes`, or `generic`).
 - Refer to another skill in this repository by its plain name, such as "the minimal-code
   skill". It is `curry:minimal-code` only inside a plugin.
 - The generic output has no hook. A skill must do its job from its own text.
@@ -54,7 +54,9 @@ resolves these tokens with this mapping:
 | GPT-Terra | Sonnet |
 | GPT-Luna | Haiku |
 
-Generic distributions retain the Codex names. Literal names and non-template files are
+Generic and Hermes distributions retain the Codex family names, not verified Hermes runtime IDs.
+Hermes registers only the three non-autonomous skills until workflow capabilities are proven.
+Literal names and non-template files are
 unchanged; use target blocks for platform-specific behavior. These are model families,
 not executable model IDs. Resolve IDs from the running host rather than inventing aliases.
 
@@ -71,6 +73,7 @@ not executable model IDs. Resolve IDs from the running host rather than inventin
 
 - If a plugin's files change, raise `version` in both `src/claude/plugin.json` and
   `src/codex/plugin.json` to the same value.
+  Hermes' generated manifest inherits that shared version from the Claude source manifest.
 - Run the checks:
 
   ```bash

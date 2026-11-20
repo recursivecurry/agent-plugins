@@ -1,4 +1,4 @@
-"""Generate the generic skills and the Claude Code and Codex plugins from src/."""
+"""Generate generic skills and Claude Code, Codex, and Hermes plugins from src/."""
 
 import argparse
 import difflib
@@ -59,10 +59,13 @@ CODEX = Plugin(
     forbidden=("CLAUDE_", ".claude"),
 )
 PLUGINS = (CLAUDE, CODEX)
+HERMES_ROOT = "plugins/hermes/curry"
+HERMES_SOURCE = "src/hermes"
 
 SKILL_ROOTS = {
     "generic": "skills",
     **{plugin.target: f"{plugin.root}/skills" for plugin in PLUGINS},
+    "hermes": f"{HERMES_ROOT}/skills",
 }
 # .agents/skills is where the skills CLI installs project skills, so only
 # .agents/plugins is owned.
@@ -91,6 +94,10 @@ FORBIDDEN_IN_SKILLS = ("](../", "](/", ".claude/", ".agents/", ".codex/", "~/.")
 # A skill is `curry:<name>` only in a plugin, and each agent reads its own
 # instruction file, so these belong in a target block.
 AGENT_SPECIFIC_IN_SKILLS = ("curry:", "CLAUDE.md", "AGENTS.md")
+FOREIGN_IN_HERMES = (
+    "CLAUDE_", "CODEX_", "${PLUGIN_ROOT}", "collaboration.spawn_agent",
+    "agents/openai.yaml", "disable-model-invocation:", ".claude/", ".codex/",
+)
 ESCAPING_LINK_PREFIXES = ("/", "../")
 EXTERNAL_LINK_PREFIXES = ("#", "mailto:")
 
@@ -269,6 +276,19 @@ def manifest_outputs(root: Path) -> Iterator[tuple[str, Output]]:
         yield output, Output((root / source).read_bytes(), executable=False)
 
 
+def hermes_outputs(root: Path) -> Iterator[tuple[str, Output]]:
+    source = f"{HERMES_SOURCE}/plugin.yaml"
+    manifest = parse_json_object(read_text(root, source), source)
+    manifest["version"] = manifest_version(read_text(root, CLAUDE.source_manifest), CLAUDE.source_manifest)
+    yield f"{HERMES_ROOT}/plugin.yaml", Output((json.dumps(manifest, indent=2) + "\n").encode(), False)
+    directory = root / HERMES_SOURCE
+    sources = [file for file in source_files(directory) if file != root / source]
+    yield from tree_outputs(root, directory, sources, {"hermes": HERMES_ROOT})
+    context = "src/plugin/hooks/session-context.md"
+    if (root / context).is_file():
+        yield f"{HERMES_ROOT}/hooks/session-context.md", Output((root / context).read_bytes(), False)
+
+
 def expected_outputs(root: Path) -> dict[str, Output]:
     outputs: dict[str, Output] = {}
     produced = [
@@ -276,7 +296,7 @@ def expected_outputs(root: Path) -> dict[str, Output]:
         for skill_dir in skill_dirs(root)
         for output in skill_outputs(root, skill_dir)
     ]
-    produced += [*plugin_file_outputs(root), *manifest_outputs(root)]
+    produced += [*plugin_file_outputs(root), *manifest_outputs(root), *hermes_outputs(root)]
     for path, output in produced:
         if path in outputs:
             raise BuildError(path, "two source files produce this output")
@@ -407,6 +427,13 @@ def lint_template(path: str, text: str, skill: str | None) -> Iterator[BuildErro
             return
         if skill is not None:
             yield from lint_frontmatter(path, lines, skill)
+        for number, line in lines:
+            if target == "hermes":
+                for term in FOREIGN_IN_HERMES:
+                    if term in line:
+                        yield BuildError(path, f"'{term}' is not supported by Hermes; use a target block", number)
+            if "{{model:" in line or "<!-- target:" in line or "<!-- /target" in line:
+                yield BuildError(path, f"unresolved template syntax for {target}", number)
 
 
 def lint_text(
@@ -543,7 +570,7 @@ def lint_plugin_file(
                 )
     if is_template(source):
         yield from lint_template(path, text, None)
-    elif source.suffix == ".json":
+    elif source.suffix == ".json" or path == f"{HERMES_SOURCE}/plugin.yaml":
         try:
             parse_json_object(text, path)
         except BuildError as error:
@@ -553,6 +580,7 @@ def lint_plugin_file(
 def lint_plugin_files(root: Path) -> Iterator[BuildError]:
     directories: list[tuple[str, tuple[str, ...]]] = [(SRC_SHARED_PLUGIN_FILES, ())]
     directories += [(plugin.source, plugin.forbidden) for plugin in PLUGINS]
+    directories.append((HERMES_SOURCE, FOREIGN_IN_HERMES))
     for directory, forbidden in directories:
         for source in source_files(root / directory):
             yield from lint_plugin_file(root, source, directory, forbidden)
@@ -643,6 +671,11 @@ def check_plugin_version(root: Path, base: str, plugin: Plugin) -> None:
 def version_check(root: Path, base: str) -> int:
     for plugin in PLUGINS:
         check_plugin_version(root, base, plugin)
+    if git(root, "diff", "--name-only", base, "HEAD", "--", HERMES_ROOT):
+        previous = plugin_version_at(root, base, CLAUDE)
+        current = plugin_version_at(root, "HEAD", CLAUDE)
+        if previous is not None and current is not None and version_key(current) <= version_key(previous):
+            raise BuildError(CLAUDE.source_manifest, "bump the shared plugin version because the Hermes plugin changed")
     return 0
 
 

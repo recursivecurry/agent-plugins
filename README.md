@@ -49,6 +49,28 @@ codex plugin marketplace upgrade agent-plugins
 codex plugin add curry@agent-plugins
 ```
 
+### As a Hermes plugin
+
+Build with Python 3.11 or newer, then copy the generated native package into the active
+profile. Do not install the repository root: its marketplaces target Claude Code and Codex.
+
+```bash
+python3 tools/build.py build
+hermes plugins validate plugins/hermes/curry
+mkdir -p "${HERMES_HOME:-$HOME/.hermes}/plugins"
+test ! -e "${HERMES_HOME:-$HOME/.hermes}/plugins/curry" &&
+cp -R plugins/hermes/curry "${HERMES_HOME:-$HOME/.hermes}/plugins/curry" &&
+hermes plugins enable curry
+```
+
+If `plugins/curry` already exists, back it up outside `plugins/` before copying; do not
+overlay an old Claude package. Start a new Hermes session after enabling. The plugin adds
+three read-only skills (`curry:minimal-code`, `curry:git-hygiene`, and
+`curry:natural-clear-writing`) and registers the shared session instructions as a static
+system-prompt section. It does not mutate an active session's cached prompt.
+Avoid duplicate standalone skill installations. `ship-until-done` files are bundled only
+for reference: no skill or slash command is registered, so autonomous PR/merge is inactive.
+
 ### Migrating from `tao`
 
 If you installed `tao@tao-of-agent`, uninstall that plugin and remove the `tao-of-agent`
@@ -97,13 +119,14 @@ an ordinary development request or a mention of its name. Invocation authorizes 
 through every supplied item, including PR creation, review, fixes, approval, and merge,
 subject to repository rules and actual permission gates.
 
-The files ship in all three distributions, but execution needs host capabilities:
+The files ship in all four distributions, but execution needs host capabilities:
 
 | Target | Invocation protection | Execution requirements |
 | --- | --- | --- |
 | Claude Code | Native `disable-model-invocation: true` | Verified Fable/Opus model selectors and independent review contexts; use native subagents when they meet these requirements |
 | Codex plugin | Native `policy.allow_implicit_invocation: false` | A verified integration for the specified slash command; native `$` mentions and `/skills` selection do not satisfy it |
 | Generic | Claude's opt-out field is included; other hosts need their own native control | A host that enforces slash-only invocation and exposes the required models and context isolation |
+| Hermes | Not registered as a skill or command | Inactive: invocation enforcement, model IDs, independent review context and reviewer identity are not established |
 
 No slash adapter is included. Unsupported hosts leave the workflow inactive and report the
 missing capability. Every execution also requires a distinct GitHub reviewer account eligible
@@ -119,7 +142,8 @@ No session hook starts this workflow.
 
 ## What the plugins add
 
-Both plugins run a hook at the start of every session that adds two short instructions: follow
+Claude Code and Codex run a hook at the start of every session; Hermes registers the same
+text as a static prompt section for new sessions. These add two short instructions: follow
 `curry:minimal-code` when changing code and work through its done checklist before reporting
 done, and keep ordinary replies free of formulaic phrasing. The two sections below explain
 why, and give the same text to paste by hand if you installed the skills without a plugin.
@@ -211,10 +235,12 @@ src/skills/<skill>/SKILL.md.tmpl   skill sources: edit here
 src/plugin/                        files that go into both plugins
 src/claude/                        Claude Code manifests and Claude-only files
 src/codex/                         Codex manifests and Codex-only files
+src/hermes/                        native Hermes manifest and register(ctx)
 tools/build.py                     generates everything below
 skills/                            generated, read by the skills CLI
 plugins/claude/curry/              generated, the Claude Code plugin
 plugins/codex/curry/               generated, the Codex plugin
+plugins/hermes/curry/              generated, the Hermes plugin
 .claude-plugin/marketplace.json    generated, the Claude Code marketplace
 .agents/plugins/marketplace.json   generated, the Codex marketplace
 evals/                             eval cases, not shipped
@@ -226,7 +252,7 @@ them that it did not produce, so hand edits and extra files there do not survive
 
 ## Contributing
 
-[AGENTS.md](AGENTS.md) holds the rules for writing a skill that works in all three
+[AGENTS.md](AGENTS.md) holds the rules for writing a skill that works in all four
 distributions. Claude Code and Codex read it when they work in this repository.
 
 1. Edit files under `src/`. A `.tmpl` file is rendered once per distribution, and everything
@@ -238,7 +264,7 @@ distributions. Claude Code and Codex read it when they work in this repository.
    <!-- /target -->
    ```
 
-   The targets are `claude`, `codex`, and `generic`. A marker must be a whole line, and
+   The targets are `claude`, `codex`, `hermes`, and `generic`. A marker must be a whole line, and
    blocks do not nest.
 
    For model names that follow the deployment target, use `{{model:GPT-Astra}}`,
@@ -252,7 +278,10 @@ distributions. Claude Code and Codex read it when they work in this repository.
    | GPT-Terra | Sonnet |
    | GPT-Luna | Haiku |
 
-   Generic output retains the Codex names. Literal names and non-template files stay
+   Generic and Hermes output retain the Codex family names, not executable Hermes IDs.
+   Target blocks select host-specific calls, paths, and frontmatter; no LLM rewrite or
+   unverified runtime-API substitution happens. Lint rejects unresolved template syntax
+   and known foreign harness syntax in Hermes templates. Literal names and non-template files stay
    unchanged. These family names do not establish runtime model IDs; verify IDs with the host.
 
    Anything that only one agent supports goes in that agent's directory: a hook definition, a
@@ -262,13 +291,17 @@ distributions. Claude Code and Codex read it when they work in this repository.
    `${CLAUDE_PLUGIN_ROOT}` in `src/codex/`. Files that both plugins need go in `src/plugin/`.
 2. If the change affects a plugin, raise `version` in both `src/claude/plugin.json` and
    `src/codex/plugin.json`. The two must stay equal. Installed plugins update only when the
-   version changes, and the version check fails the build PR without it.
+   version changes, and the version check fails the build PR without it. Hermes' JSON-compatible
+   `plugin.yaml` is generated with the shared Claude/Codex version; do not set it separately.
 3. Run the checks:
 
    ```bash
    python3 -m unittest discover -s tools
    python3 tools/build.py lint
    tools/check_codex_plugin.sh   # needs the codex CLI, no login
+   python3 tools/build.py check
+   hermes plugins validate plugins/hermes/curry
+   python tools/check_hermes_plugin.py  # run in Hermes' Python environment
    ```
 
 4. Open a pull request with the `src/` changes. You do not need to commit generated files. If
@@ -277,4 +310,7 @@ distributions. Claude Code and Codex read it when they work in this repository.
 
 After the pull request merges, a workflow opens a "Release: regenerate distributions" pull
 request with the rebuilt outputs. Merging that one is the release.
+Hermes uses that same generator and release workflow. CI builds all targets, checks consistency,
+and requires a second build to change nothing. The optional Hermes runtime check uses a temporary
+profile and makes no model calls.
 [docs/release-setup.md](docs/release-setup.md) describes the one-time setup it needs.
