@@ -67,6 +67,11 @@ SKILL_ROOTS = {
     **{plugin.target: f"{plugin.root}/skills" for plugin in PLUGINS},
     "hermes": f"{HERMES_ROOT}/skills",
 }
+PLUGIN_FILE_ROOTS = {
+    SRC_SHARED_PLUGIN_FILES: {plugin.target: plugin.root for plugin in PLUGINS},
+    **{plugin.source: {plugin.target: plugin.root} for plugin in PLUGINS},
+    HERMES_SOURCE: {"hermes": HERMES_ROOT},
+}
 # .agents/skills is where the skills CLI installs project skills, so only
 # .agents/plugins is owned.
 OWNED_ROOTS = ("skills", "plugins", ".claude-plugin", ".agents/plugins")
@@ -251,14 +256,14 @@ def agent_files(root: Path, plugin: Plugin) -> list[Path]:
 
 def plugin_file_outputs(root: Path) -> Iterator[tuple[str, Output]]:
     shared = root / SRC_SHARED_PLUGIN_FILES
-    plugin_roots = {plugin.target: plugin.root for plugin in PLUGINS}
+    plugin_roots = PLUGIN_FILE_ROOTS[SRC_SHARED_PLUGIN_FILES]
     yield from tree_outputs(root, shared, source_files(shared), plugin_roots)
     for plugin in PLUGINS:
         yield from tree_outputs(
             root,
             root / plugin.source,
             agent_files(root, plugin),
-            {plugin.target: plugin.root},
+            PLUGIN_FILE_ROOTS[plugin.source],
         )
 
 
@@ -283,7 +288,7 @@ def hermes_outputs(root: Path) -> Iterator[tuple[str, Output]]:
     yield f"{HERMES_ROOT}/plugin.yaml", Output((json.dumps(manifest, indent=2) + "\n").encode(), False)
     directory = root / HERMES_SOURCE
     sources = [file for file in source_files(directory) if file != root / source]
-    yield from tree_outputs(root, directory, sources, {"hermes": HERMES_ROOT})
+    yield from tree_outputs(root, directory, sources, PLUGIN_FILE_ROOTS[HERMES_SOURCE])
     context = "src/plugin/hooks/session-context.md"
     if (root / context).is_file():
         yield f"{HERMES_ROOT}/hooks/session-context.md", Output((root / context).read_bytes(), False)
@@ -419,7 +424,11 @@ def lint_frontmatter(
 
 def lint_template(path: str, text: str, skill: str | None) -> Iterator[BuildError]:
     """Check markers, and the frontmatter of each rendering when skill is given."""
-    for target in SKILL_ROOTS:
+    targets = next(
+        (destinations for source, destinations in PLUGIN_FILE_ROOTS.items() if path.startswith(source + "/")),
+        SKILL_ROOTS,
+    )
+    for target in targets:
         try:
             lines = render_model_lines(text, target, path)
         except BuildError as error:

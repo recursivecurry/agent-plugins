@@ -1,5 +1,7 @@
 import importlib.util
 import json
+import os
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
@@ -12,6 +14,41 @@ PACKAGE = "plugins/hermes/curry"
 
 
 class HermesDistributionTest(unittest.TestCase):
+    def test_readme_installation_targets_the_selected_profile(self):
+        for readme in ("README.md", "README.ko.md"):
+            text = (ROOT / readme).read_text()
+            section = text.split("### ")[3]
+            snippet = section.split("```bash\n", 1)[1].split("```", 1)[0]
+            self.assertIn('hermes --profile "$profile" config path', snippet)
+            self.assertIn('hermes --profile "$profile" plugins enable curry', snippet)
+            for profile in ("default", "review-test"):
+                with self.subTest(readme=readme, profile=profile), tempfile.TemporaryDirectory() as directory:
+                    root = Path(directory)
+                    home = root if profile == "default" else root / "profiles" / profile
+                    script = '''
+set -eu
+python3() { :; }
+hermes() {
+    test "$1" = --profile
+    test "$2" = "$EXPECTED_PROFILE"
+    shift 2
+    case "$*" in
+        "config path") printf '%s/config.yaml\\n' "$EXPECTED_HOME" ;;
+        "plugins validate plugins/hermes/curry") ;;
+        "plugins enable curry") test -f "$EXPECTED_HOME/plugins/curry/plugin.yaml" ;;
+        *) return 1 ;;
+    esac
+}
+''' + snippet.replace("profile=default", f"profile={profile}")
+                    result = subprocess.run(
+                        ["bash", "-c", script], cwd=ROOT, capture_output=True, text=True,
+                        env={**os.environ, "HERMES_HOME": str(root / "wrong-profile"),
+                             "EXPECTED_PROFILE": profile, "EXPECTED_HOME": str(home)},
+                    )
+                    self.assertEqual(result.returncode, 0, result.stderr)
+                    self.assertTrue((home / "plugins/curry/plugin.yaml").is_file())
+                    self.assertFalse((root / "wrong-profile/plugins").exists())
+
     def test_rendered_hermes_skills_have_no_foreign_target_leaks(self):
         for path, output in build.expected_outputs(ROOT).items():
             if path.startswith(PACKAGE + "/skills/") and path.endswith(".md"):

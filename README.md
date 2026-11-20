@@ -51,16 +51,22 @@ codex plugin add curry@agent-plugins
 
 ### As a Hermes plugin
 
-Build with Python 3.11 or newer, then copy the generated native package into the active
-profile. Do not install the repository root: its marketplaces target Claude Code and Codex.
+Build with Python 3.11 or newer, then choose the destination profile explicitly: keep
+`profile=default` below or replace `default` with an existing named profile. Resolve its
+home through `hermes --profile "$profile" config path` so copying and enabling target the
+same profile, regardless of `hermes profile use` or the shell's `HERMES_HOME`.
+Do not install the repository root: its marketplaces target Claude Code and Codex.
 
 ```bash
 python3 tools/build.py build
-hermes plugins validate plugins/hermes/curry
-mkdir -p "${HERMES_HOME:-$HOME/.hermes}/plugins"
-test ! -e "${HERMES_HOME:-$HOME/.hermes}/plugins/curry" &&
-cp -R plugins/hermes/curry "${HERMES_HOME:-$HOME/.hermes}/plugins/curry" &&
-hermes plugins enable curry
+profile=default
+config_path=$(hermes --profile "$profile" config path) &&
+profile_home=$(dirname "$config_path") &&
+hermes --profile "$profile" plugins validate plugins/hermes/curry &&
+mkdir -p "$profile_home/plugins" &&
+test ! -e "$profile_home/plugins/curry" &&
+cp -R plugins/hermes/curry "$profile_home/plugins/curry" &&
+hermes --profile "$profile" plugins enable curry
 ```
 
 If `plugins/curry` already exists, back it up outside `plugins/` before copying; do not

@@ -51,16 +51,22 @@ codex plugin add curry@agent-plugins
 
 ### Hermes 플러그인으로 설치
 
-Python 3.11 이상으로 빌드한 뒤 생성된 네이티브 패키지를 활성 프로필에 복사합니다.
+Python 3.11 이상으로 빌드한 뒤 대상 프로필을 명시적으로 선택합니다. 아래의
+`profile=default`를 유지하거나 `default`를 기존 프로필 이름으로 바꿉니다.
+`hermes --profile "$profile" config path`로 홈 경로를 조회하므로 `hermes profile use`나
+셸의 `HERMES_HOME`과 관계없이 복사와 활성화가 같은 프로필을 대상으로 합니다.
 저장소 루트의 마켓플레이스는 Claude Code와 Codex용이므로 루트를 그대로 설치하지 않습니다.
 
 ```bash
 python3 tools/build.py build
-hermes plugins validate plugins/hermes/curry
-mkdir -p "${HERMES_HOME:-$HOME/.hermes}/plugins"
-test ! -e "${HERMES_HOME:-$HOME/.hermes}/plugins/curry" &&
-cp -R plugins/hermes/curry "${HERMES_HOME:-$HOME/.hermes}/plugins/curry" &&
-hermes plugins enable curry
+profile=default
+config_path=$(hermes --profile "$profile" config path) &&
+profile_home=$(dirname "$config_path") &&
+hermes --profile "$profile" plugins validate plugins/hermes/curry &&
+mkdir -p "$profile_home/plugins" &&
+test ! -e "$profile_home/plugins/curry" &&
+cp -R plugins/hermes/curry "$profile_home/plugins/curry" &&
+hermes --profile "$profile" plugins enable curry
 ```
 
 `plugins/curry`가 있으면 먼저 `plugins/` 밖으로 백업합니다. 기존 Claude 패키지 위에 덮어쓰지
