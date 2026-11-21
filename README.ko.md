@@ -49,6 +49,47 @@ codex plugin marketplace upgrade agent-plugins
 codex plugin add curry@agent-plugins
 ```
 
+### Hermes 플러그인으로 설치
+
+Python 3.11 이상으로 빌드한 뒤 대상 프로필을 명시적으로 선택합니다. 아래의
+`profile=default`를 유지하거나 `default`를 기존 프로필 이름으로 바꿉니다.
+`hermes --profile "$profile" config path`로 홈 경로를 조회하므로 `hermes profile use`나
+셸의 `HERMES_HOME`과 관계없이 복사와 활성화가 같은 프로필을 대상으로 합니다.
+저장소 루트의 마켓플레이스는 Claude Code와 Codex용이므로 루트를 그대로 설치하지 않습니다.
+
+```bash
+python3 tools/build.py build
+profile=default
+config_path=$(hermes --profile "$profile" config path) &&
+profile_home=$(dirname "$config_path") &&
+hermes --profile "$profile" plugins validate plugins/hermes/curry &&
+mkdir -p "$profile_home/plugins" &&
+test ! -e "$profile_home/plugins/curry" &&
+cp -R plugins/hermes/curry "$profile_home/plugins/curry" &&
+hermes --profile "$profile" plugins enable curry
+```
+
+`plugins/curry`가 있으면 먼저 `plugins/` 밖으로 백업합니다. 기존 Claude 패키지 위에 덮어쓰지
+않습니다. 활성화한 뒤 새 Hermes 세션을 시작합니다. 플러그인은 읽기 전용 스킬 세 개
+(`curry:minimal-code`, `curry:git-hygiene`, `curry:natural-clear-writing`)를 등록하고,
+공유 세션 지침을 정적인 시스템 프롬프트 섹션으로 추가합니다. 진행 중인 세션의 캐시된
+프롬프트는 바꾸지 않습니다. 독립 설치한 같은 스킬과 중복되지 않도록 하나만 선택합니다.
+`ship-until-done` 파일은 참고용으로만 포함하며 스킬이나 슬래시 명령으로 등록하지 않습니다.
+따라서 이 배포본은 자율 PR 생성이나 병합을 활성화하지 않습니다.
+
+Hermes도 `src/hermes/`와 공유 스킬 소스에서 `plugins/hermes/curry/`로 자동 생성됩니다.
+기존 릴리스 워크플로가 네 배포본을 함께 재생성합니다. `hermes` 대상 블록으로 호스트별
+호출, 경로, frontmatter를 선택하며 LLM으로 다시 쓰거나 검증되지 않은 API로 치환하지 않습니다.
+모델 토큰은 Codex와 같은 모델 계열 이름을 유지하지만 실행 가능한 Hermes 모델 ID를
+뜻하지 않습니다. 미해결 템플릿 문법과 알려진 다른 호스트 전용 문법은 lint가 거부합니다.
+Hermes의 JSON 호환 `plugin.yaml` 버전은 Claude/Codex의 공통 버전에서 생성합니다.
+
+CI는 전체 빌드와 일관성 검사, 두 번째 빌드의 무변경 여부를 확인합니다. Hermes 환경에서는
+`hermes plugins validate plugins/hermes/curry`와 `python tools/check_hermes_plugin.py`로
+실제 로딩을 확인할 수 있습니다. 후자는 임시 프로필을 사용하며 모델을 호출하지 않습니다.
+이 워크플로에 필요한 명시적 호출 제어, 모델 ID, 독립 리뷰 컨텍스트와 적격 GitHub 리뷰어
+계정은 입증되지 않았으므로 `ship-until-done`은 비활성 상태를 유지합니다.
+
 ### 기존 `tao` 설치에서 이전
 
 `tao@tao-of-agent`를 설치했다면 에이전트에서 해당 플러그인과 `tao-of-agent` 마켓플레이스를
@@ -97,13 +138,14 @@ cp -r skills/ship-until-done ~/.claude/skills/
 언급만으로는 시작하지 않습니다. 실행하면 저장소 규칙과 실제 권한 제한을 지키면서 주어진 모든
 항목의 PR 생성, 리뷰, 수정, 승인, 머지까지 이어서 진행합니다.
 
-파일은 세 배포판 모두에 포함되지만, 실행하려면 호스트가 필요한 기능을 제공해야 합니다.
+파일은 네 배포판 모두에 포함되지만, 실행하려면 호스트가 필요한 기능을 제공해야 합니다.
 
 | 대상 | 자동 실행 방지 | 실행에 필요한 기능 |
 | --- | --- | --- |
 | Claude Code | 기본 설정인 `disable-model-invocation: true`를 적용합니다. | 검증된 Fable/Opus 모델 선택 기능과 독립된 리뷰 컨텍스트가 필요합니다. 기본 서브 에이전트가 조건을 충족하면 사용할 수 있습니다. |
 | Codex 플러그인 | 기본 설정인 `policy.allow_implicit_invocation: false`를 적용합니다. | 지정된 슬래시 명령을 검증할 수 있는 연동이 필요합니다. 기본 `$` 호출과 `/skills` 선택은 이 조건을 충족하지 않습니다. |
 | Generic | Claude의 자동 호출 차단 필드를 포함합니다. 다른 호스트에는 해당 호스트의 기본 차단 설정이 필요합니다. | 슬래시 명령으로만 실행하도록 제한하고, 필요한 모델과 독립 컨텍스트를 제공하는 호스트가 필요합니다. |
+| Hermes | 스킬이나 명령으로 등록하지 않습니다. | 명시적 호출 제어, 모델 ID, 독립 리뷰 컨텍스트와 리뷰어 계정이 입증되지 않아 비활성 상태입니다. |
 
 슬래시 명령 어댑터는 포함하지 않습니다. 지원하지 않는 호스트에서는 워크플로를 실행하지 않고
 부족한 기능을 알립니다. 실행하려면 PR 작성자와 별개로 유효한 승인을 제출할 수 있는 GitHub
@@ -119,7 +161,8 @@ Generic 스킬을 Codex에 설치했다면 Codex의 기본 자동 호출 차단 
 
 ## 플러그인이 추가하는 것
 
-두 플러그인은 세션을 시작할 때마다 hook을 실행해 짧은 지침 두 가지를 넣습니다. 하나는 코드를
+Claude Code와 Codex는 세션 시작 hook으로, Hermes는 새 세션의 정적 프롬프트 섹션으로
+같은 짧은 지침 두 가지를 넣습니다. 하나는 코드를
 바꿀 때 `curry:minimal-code`를 따르고 완료를 보고하기 전에 그 스킬의 완료 체크리스트를 점검하라는
 지침이고, 다른 하나는 일반 답변에서 상투적인 표현을 쓰지 말라는 지침입니다. 아래 두 절은 그
 이유를 설명하고, 플러그인 없이 스킬만 설치한 경우 직접 붙여 넣을 같은 문구를 제공합니다.
@@ -194,10 +237,12 @@ src/skills/<skill>/SKILL.md.tmpl   스킬 소스: 여기를 수정합니다
 src/plugin/                        두 플러그인에 모두 들어가는 파일
 src/claude/                        Claude Code 매니페스트와 Claude 전용 파일
 src/codex/                         Codex 매니페스트와 Codex 전용 파일
+src/hermes/                        Hermes 매니페스트와 register(ctx)
 tools/build.py                     아래의 모든 것을 생성합니다
 skills/                            생성됨, skills CLI가 읽습니다
 plugins/claude/curry/              생성됨, Claude Code 플러그인
 plugins/codex/curry/               생성됨, Codex 플러그인
+plugins/hermes/curry/              생성됨, Hermes 플러그인
 .claude-plugin/marketplace.json    생성됨, Claude Code 마켓플레이스
 .agents/plugins/marketplace.json   생성됨, Codex 마켓플레이스
 evals/                             평가 케이스, 배포되지 않습니다
@@ -209,7 +254,7 @@ evals/                             평가 케이스, 배포되지 않습니다
 
 ## 기여하기
 
-세 배포판 모두에서 동작하는 스킬을 쓰기 위한 규칙은 [AGENTS.md](AGENTS.md)에 있습니다. Claude
+네 배포판 모두에서 동작하는 스킬을 쓰기 위한 규칙은 [AGENTS.md](AGENTS.md)에 있습니다. Claude
 Code와 Codex는 이 저장소에서 작업할 때 이 파일을 읽습니다.
 
 1. `src/` 아래의 파일을 수정합니다. `.tmpl` 파일은 배포판마다 한 번씩 렌더링되고, 나머지
@@ -221,7 +266,7 @@ Code와 Codex는 이 저장소에서 작업할 때 이 파일을 읽습니다.
    <!-- /target -->
    ```
 
-   타깃은 `claude`, `codex`, `generic`입니다. 마커는 한 줄 전체를 차지해야 하고, 블록은
+   타깃은 `claude`, `codex`, `hermes`, `generic`입니다. 마커는 한 줄 전체를 차지해야 하고, 블록은
    중첩할 수 없습니다.
 
    배포 대상에 맞춰 모델명을 바꾸려면 템플릿에 `{{model:GPT-Astra}}`,

@@ -74,6 +74,7 @@ class SourceTreeCase(unittest.TestCase):
         write(self.root, build.CLAUDE.source_marketplace, MARKETPLACE)
         write(self.root, build.CODEX.source_manifest, PLUGIN)
         write(self.root, build.CODEX.source_marketplace, CODEX_MARKETPLACE)
+        write(self.root, "src/hermes/plugin.yaml", '{"name": "curry"}\n')
 
     def build(self) -> str:
         code, stdout, _ = run(build.build, self.root)
@@ -106,7 +107,7 @@ class RenderTest(unittest.TestCase):
 
     def test_model_mapping_for_each_distribution(self) -> None:
         text = "{{model:GPT-Astra}} {{model:GPT-Sol}} {{model:GPT-Terra}} {{model:GPT-Luna}}\n"
-        for target in ("codex", "generic"):
+        for target in ("codex", "generic", "hermes"):
             with self.subTest(target=target):
                 self.assertEqual(self.render(text, target), "GPT-Astra GPT-Sol GPT-Terra GPT-Luna\n")
         self.assertEqual(self.render(text, "claude"), "Fable Opus Sonnet Haiku\n")
@@ -191,6 +192,9 @@ class BuildTest(SourceTreeCase):
                 "plugins/codex/curry/skills/demo/references/note.md": NOTE.encode(),
                 "plugins/codex/curry/.codex-plugin/plugin.json": PLUGIN.encode(),
                 ".agents/plugins/marketplace.json": CODEX_MARKETPLACE.encode(),
+                "plugins/hermes/curry/plugin.yaml": b'{\n  "name": "curry",\n  "version": "0.2.0"\n}\n',
+                "plugins/hermes/curry/skills/demo/SKILL.md": skill,
+                "plugins/hermes/curry/skills/demo/references/note.md": NOTE.encode(),
             },
         )
 
@@ -520,12 +524,49 @@ class LintTest(SourceTreeCase):
             "src/codex/hooks/hooks.json:1: 'CLAUDE_' is not allowed in src/codex"
         )
 
+    def test_agent_templates_are_linted_only_for_generated_targets(self) -> None:
+        for target, syntax in (("claude", "${CLAUDE_PLUGIN_ROOT}/hooks"), ("codex", "${PLUGIN_ROOT}/hooks")):
+            with self.subTest(target=target):
+                path = f"src/{target}/hooks/context.md.tmpl"
+                write(self.root, path, syntax + "\n")
+                self.assertEqual(build.lint_violations(self.root), [])
+                outputs = build.expected_outputs(self.root)
+                generated = [name for name in outputs if name.endswith("hooks/context.md")]
+                self.assertEqual(generated, [f"plugins/{target}/curry/hooks/context.md"])
+                self.assertEqual(outputs[generated[0]].content, (syntax + "\n").encode())
+                (self.root / path).unlink()
+
     def test_each_agent_may_name_its_own_variables(self) -> None:
         write(
             self.root, "src/claude/hooks/hooks.json", '{"c": "${CLAUDE_PLUGIN_ROOT}"}\n'
         )
         write(self.root, "src/codex/hooks/hooks.json", '{"c": "${PLUGIN_ROOT}"}\n')
         self.assertEqual(build.lint_violations(self.root), [])
+
+
+class TemplateTargetTest(SourceTreeCase):
+    def test_shared_plugin_templates_validate_only_their_actual_targets(self) -> None:
+        path = "src/plugin/hooks/context.md.tmpl"
+        template = "<!-- target:hermes -->\n{{model:GPT-Unknown}}\n<!-- /target -->\n"
+        write(self.root, path, template)
+        self.assertEqual(build.lint_violations(self.root), [])
+        outputs = build.expected_outputs(self.root)
+        self.assertEqual(outputs["plugins/claude/curry/hooks/context.md"].content, b"")
+        self.assertEqual(outputs["plugins/codex/curry/hooks/context.md"].content, b"")
+        write(self.root, path, template.replace("target:hermes", "target:codex"))
+        self.assertTrue(any("unknown model 'GPT-Unknown'" in error for error in build.lint_violations(self.root)))
+
+    def test_hermes_and_shared_skills_still_reject_foreign_syntax(self) -> None:
+        for path, prefix in (("src/hermes/context.md.tmpl", ""), (SKILL_SOURCE, SKILL)):
+            for syntax in build.FOREIGN_IN_HERMES:
+                with self.subTest(path=path, syntax=syntax):
+                    write(self.root, path, prefix + syntax + "\n")
+                    violations = build.lint_violations(self.root)
+                    self.assertTrue(any(path in error and syntax in error for error in violations), violations)
+
+    def test_generic_skill_rendering_is_still_validated(self) -> None:
+        write(self.root, SKILL_SOURCE, SKILL + "<!-- target:generic -->\n{{model:GPT-Unknown}}\n<!-- /target -->\n")
+        self.assertTrue(any("unknown model 'GPT-Unknown'" in error for error in build.lint_violations(self.root)))
 
 
 class VersionTest(unittest.TestCase):
@@ -639,9 +680,9 @@ class SummaryTest(GitCase):
             self.summary(),
             "## Build summary\n\n"
             "Plugin version: 0.2.0 (unchanged)\n\n"
-            "| Skill | Generic | Claude | Codex |\n"
-            "|---|---|---|---|\n"
-            "| demo | — | — | — |\n\n"
+            "| Skill | Generic | Claude | Codex | Hermes |\n"
+            "|---|---|---|---|---|\n"
+            "| demo | — | — | — | — |\n\n"
             "Other changes: none\n",
         )
 
@@ -667,13 +708,13 @@ class SummaryTest(GitCase):
             self.summary(),
             "## Build summary\n\n"
             "Plugin version: 0.2.0 → 0.3.0\n\n"
-            "| Skill | Generic | Claude | Codex |\n"
-            "|---|---|---|---|\n"
-            "| added | changed | changed | changed |\n"
-            "| demo | — | changed | — |\n"
-            "| gone | changed | changed | changed |\n\n"
+            "| Skill | Generic | Claude | Codex | Hermes |\n"
+            "|---|---|---|---|---|\n"
+            "| added | changed | changed | changed | changed |\n"
+            "| demo | — | changed | — | — |\n"
+            "| gone | changed | changed | changed | changed |\n\n"
             "Other changes: plugins/claude/curry/.claude-plugin/plugin.json, "
-            "plugins/codex/curry/.codex-plugin/plugin.json\n",
+            "plugins/codex/curry/.codex-plugin/plugin.json, plugins/hermes/curry/plugin.yaml\n",
         )
 
     def test_reports_a_new_plugin_when_head_has_no_manifest(self) -> None:

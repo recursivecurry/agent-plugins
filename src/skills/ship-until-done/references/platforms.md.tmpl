@@ -2,6 +2,14 @@
 
 Installation does not establish that a host can run the workflow. Check the installed
 host's controls and exposed tool schemas before changing code or creating a PR.
+<!-- target:hermes -->
+The Hermes distribution does not register this workflow as a skill or slash command.
+Its files are reference-only. No invocation adapter or native implicit-invocation policy
+has been verified for this workflow, so stop before implementation, PR creation, or merge.
+Hermes model families are not automatically mapped to runtime IDs. Independent model
+selection, fresh reviewer context, and a distinct eligible GitHub identity would also
+need verification before a future integration could enable execution.
+<!-- /target -->
 
 <!-- target:claude -->
 Claude Code uses `disable-model-invocation: true`. The plugin command is
@@ -102,7 +110,18 @@ Verified against primary platform documentation; recheck controls if the host ch
 - [Claude Code subagents](https://code.claude.com/docs/en/sub-agents): separate contexts and
   Claude model selection. Verify available models and selectors in the running host.
 - [OpenAI skills](https://developers.openai.com/codex/skills/): `$`, `/skills`, and
+<!-- target:claude -->
   `policy.allow_implicit_invocation` in `agents/openai.yaml`.
+<!-- /target -->
+<!-- target:codex -->
+  `policy.allow_implicit_invocation` in `agents/openai.yaml`.
+<!-- /target -->
+<!-- target:generic -->
+  `policy.allow_implicit_invocation` in `agents/openai.yaml`.
+<!-- /target -->
+<!-- target:hermes -->
+  Codex's native skill invocation policy (not a Hermes execution control).
+<!-- /target -->
 - [OpenAI subagents](https://developers.openai.com/codex/subagents/): host configuration
   and model selection. An installed version's exposed tool schema remains decisive.
 - [GitHub review permissions](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/reviewing-changes-in-pull-requests/about-pull-request-reviews):
