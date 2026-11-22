@@ -5,7 +5,7 @@ description: Write or edit human-facing prose so it is clear, natural, and free 
 license: MIT
 metadata:
   author: recursivecurry
-  version: 2.3.0
+  version: 2.4.0
 ---
 
 # Natural, clear writing
@@ -59,6 +59,7 @@ Implicit by default, explicit by exception: leave out what is self-evident to th
 - Stacked qualifiers → fewer qualifiers, without increasing certainty.
 - Vague authorities such as "experts agree" → clarify only when the source supports it.
 - Markdown excess: headers over a few paragraphs, a bold label on every line, emoji, horizontal rules, "Key takeaways" sections → plain paragraphs, with lists and headings only where they aid comprehension.
+- Em dashes (—) and middle dots (·): few keyboards have a key for either, so people rarely type them, and frequent use makes text read as machine-written. Do not use them. Show the relationship with ordinary punctuation or a conjunction, or restructure the sentence. Do not just swap in another character. Keep them in code, quotations, proper nouns, and wherever technical accuracy requires them.
 - Prefer direct verbs and concrete wording. Let sentence length follow meaning rather than a fixed rhythm.
 
 ### Voice
